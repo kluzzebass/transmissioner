@@ -3,7 +3,8 @@ import SwiftUI
 struct ServicesSettingsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @State private var editingService: ServiceConfig?
-    @State private var showingEditor = false
+    @State private var editorID = UUID()
+    @State private var showingAddEditor = false
 
     var body: some View {
         VStack(spacing: 12) {
@@ -12,8 +13,8 @@ struct ServicesSettingsView: View {
                     .font(.title2.weight(.semibold))
                 Spacer()
                 Button("Add Service") {
-                    editingService = nil
-                    showingEditor = true
+                    editorID = UUID()
+                    showingAddEditor = true
                 }
             }
 
@@ -30,7 +31,6 @@ struct ServicesSettingsView: View {
                         Spacer()
                         Button("Edit") {
                             editingService = service
-                            showingEditor = true
                         }
                         Button {
                             move(service, direction: -1)
@@ -64,17 +64,26 @@ struct ServicesSettingsView: View {
             Spacer()
         }
         .padding(16)
-        .sheet(isPresented: $showingEditor) {
-            ServiceEditorView(service: editingService) { updated in
+        .sheet(item: $editingService) { service in
+            ServiceEditorView(service: service) { updated in
                 if serviceStore.services.contains(where: { $0.id == updated.id }) {
                     serviceStore.update(updated)
                 } else {
                     serviceStore.add(updated)
                 }
-                showingEditor = false
+                editingService = nil
             } onCancel: {
-                showingEditor = false
+                editingService = nil
             }
+        }
+        .sheet(isPresented: $showingAddEditor) {
+            ServiceEditorView(service: nil) { updated in
+                serviceStore.add(updated)
+                showingAddEditor = false
+            } onCancel: {
+                showingAddEditor = false
+            }
+            .id(editorID)
         }
     }
 

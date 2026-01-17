@@ -34,20 +34,37 @@ struct MenuBarPopoverView: View {
         }
         .padding(12)
         .frame(width: 420)
+        .overlay {
+            if showingAddTorrent {
+                ZStack {
+                    Color.black.opacity(0.25)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            showingAddTorrent = false
+                        }
+
+                    AddTorrentView(
+                        onAdd: { link, dir in
+                            showingAddTorrent = false
+                            Task { await viewModel.addTorrent(magnetLink: link, downloadDir: dir) }
+                        },
+                        onCancel: { showingAddTorrent = false }
+                    )
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                    )
+                    .shadow(radius: 10)
+                }
+            }
+        }
         .onAppear(perform: configureViewModel)
         .onChange(of: appState.selectedServiceID) { _, _ in configureViewModel() }
         .onReceive(refreshTimer) { _ in
             guard preferences.autoRefresh, selectedService != nil else { return }
             Task { await viewModel.refresh() }
-        }
-        .sheet(isPresented: $showingAddTorrent) {
-            AddTorrentView(
-                onAdd: { link, dir in
-                    showingAddTorrent = false
-                    Task { await viewModel.addTorrent(magnetLink: link, downloadDir: dir) }
-                },
-                onCancel: { showingAddTorrent = false }
-            )
         }
     }
 
@@ -126,6 +143,7 @@ struct MenuBarPopoverView: View {
     }
 
     private func openSettings() {
+        NSApp.activate(ignoringOtherApps: true)
         openWindow(id: "settings")
     }
 }

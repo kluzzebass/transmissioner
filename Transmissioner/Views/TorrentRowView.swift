@@ -2,6 +2,8 @@ import SwiftUI
 
 struct TorrentRowView: View {
     let torrent: TorrentInfo
+    let globalSeedRatioLimit: Double?
+    let globalSeedRatioLimited: Bool
     let onToggle: () -> Void
     let onRemove: () -> Void
     let onRemoveWithData: () -> Void
@@ -26,8 +28,7 @@ struct TorrentRowView: View {
                 .help(torrent.isActive ? "Pause" : "Start")
             }
 
-            ProgressView(value: torrent.percentDone)
-                .progressViewStyle(.linear)
+            progressBar
 
             HStack(spacing: 12) {
                 Text(Formatters.percentString(torrent.percentDone))
@@ -60,40 +61,125 @@ struct TorrentRowView: View {
     }
 
     private var statusText: String {
-        if let errorString = torrent.errorString, !errorString.isEmpty {
+        switch displayState {
+        case .error:
             return "Error"
-        }
-        guard let status = TransmissionStatus(rawValue: torrent.status) else {
-            return "Unknown"
-        }
-        switch status {
         case .stopped:
             return "Stopped"
-        case .checkWait, .checking:
+        case .checking:
             return "Checking"
-        case .downloadWait, .downloading:
+        case .downloading:
             return "Downloading"
-        case .seedWait, .seeding:
+        case .completed:
+            return "Completed"
+        case .seeding:
             return "Seeding"
+        case .seedingComplete:
+            return "Seeding Complete"
+        case .unknown:
+            return "Unknown"
         }
     }
 
     private var statusColor: Color {
-        if let errorString = torrent.errorString, !errorString.isEmpty {
+        switch displayState {
+        case .error:
+            return .red
+        case .stopped:
+            return .gray
+        case .checking:
+            return .orange
+        case .downloading:
+            return .blue
+        case .completed:
+            return .purple
+        case .seeding:
+            return .teal
+        case .seedingComplete:
+            return .green
+        case .unknown:
+            return .gray
+        }
+    }
+
+    private var progressColor: Color {
+        switch displayState {
+        case .completed, .seeding:
+            return .green
+        case .seedingComplete, .downloading, .checking, .stopped, .unknown:
+            return .gray
+        case .error:
             return .red
         }
+    }
+
+    private var progressBar: some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            ZStack(alignment: .leading) {
+                Capsule()
+                    .fill(Color.gray.opacity(0.2))
+                Capsule()
+                    .fill(progressColor)
+                    .frame(width: max(2, width * CGFloat(torrent.percentDone)))
+                if let seedOverlayProgress {
+                    Capsule()
+                        .fill(Color.green.opacity(0.5))
+                        .frame(width: max(2, width * CGFloat(seedOverlayProgress)))
+                }
+            }
+        }
+        .frame(height: 6)
+    }
+
+    private var seedOverlayProgress: Double? {
+        guard displayState == .seeding else { return nil }
+        guard let limit = resolvedSeedRatioLimit else { return nil }
+        let progress = torrent.uploadRatio / limit
+        return min(max(progress, 0), 1)
+    }
+
+    private enum DisplayState {
+        case error
+        case stopped
+        case checking
+        case downloading
+        case completed
+        case seeding
+        case seedingComplete
+        case unknown
+    }
+
+    private var displayState: DisplayState {
+        if let errorString = torrent.errorString, !errorString.isEmpty {
+            return .error
+        }
         guard let status = TransmissionStatus(rawValue: torrent.status) else {
-            return .gray
+            return .unknown
         }
         switch status {
         case .stopped:
-            return .gray
+            return torrent.isFinished ? .completed : .stopped
         case .checkWait, .checking:
-            return .orange
+            return .checking
         case .downloadWait, .downloading:
-            return .blue
+            return .downloading
         case .seedWait, .seeding:
-            return .green
+            if let limit = resolvedSeedRatioLimit, torrent.uploadRatio >= limit {
+                return .seedingComplete
+            }
+            return .seeding
         }
+    }
+
+    private var resolvedSeedRatioLimit: Double? {
+        if torrent.seedRatioMode == 1, let limit = torrent.seedRatioLimit, limit > 0 {
+            return limit
+        }
+        if torrent.seedRatioMode == 0 || torrent.seedRatioMode == nil {
+            guard globalSeedRatioLimited, let limit = globalSeedRatioLimit, limit > 0 else { return nil }
+            return limit
+        }
+        return nil
     }
 }

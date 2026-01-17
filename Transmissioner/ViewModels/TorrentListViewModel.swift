@@ -7,6 +7,8 @@ final class TorrentListViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var lastError: String?
     @Published var lastUpdated: Date?
+    @Published var sessionSeedRatioLimit: Double?
+    @Published var sessionSeedRatioLimited = false
 
     private var client: TransmissionRPCClient?
     private var currentConfig: ServiceConfig?
@@ -37,6 +39,17 @@ final class TorrentListViewModel: ObservableObject {
             )
             torrents = response.torrents.sorted(by: { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending })
             lastError = nil
+            do {
+                let session: SessionGetResponseArguments = try await client.request(
+                    method: "session-get",
+                    arguments: SessionGetArguments()
+                )
+                sessionSeedRatioLimit = session.seedRatioLimit
+                sessionSeedRatioLimited = session.seedRatioLimited ?? false
+            } catch {
+                sessionSeedRatioLimit = nil
+                sessionSeedRatioLimited = false
+            }
         } catch {
             lastError = error.localizedDescription
         }

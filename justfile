@@ -27,7 +27,8 @@ open:
 
 # Quit the running app (if any).
 stop:
-	osascript -e 'tell application "Transmissioner" to quit'
+	osascript -e 'tell application "Transmissioner" to quit' >/dev/null 2>&1 || true
+	killall Transmissioner >/dev/null 2>&1 || true
 
 # Restart the app (quit if running, then build and launch).
 restart: stop run

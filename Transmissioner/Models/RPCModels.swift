@@ -54,9 +54,13 @@ struct SessionGetArguments: Encodable {}
 struct SessionGetResponseArguments: Decodable {
     let version: String?
     let downloadDir: String?
+    let seedRatioLimit: Double?
+    let seedRatioLimited: Bool?
 
     enum CodingKeys: String, CodingKey {
         case version
         case downloadDir = "download-dir"
+        case seedRatioLimit = "seedRatioLimit"
+        case seedRatioLimited = "seedRatioLimited"
     }
 }

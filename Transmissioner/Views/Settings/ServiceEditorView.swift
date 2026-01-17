@@ -73,6 +73,7 @@ struct ServiceEditorView: View {
         }
         .padding(20)
         .frame(width: 460)
+        .interactiveDismissDisabled(true)
     }
 
     private func save() {

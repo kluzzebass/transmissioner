@@ -19,6 +19,8 @@ struct TorrentListView: View {
                     ForEach(viewModel.torrents) { torrent in
                         TorrentRowView(
                             torrent: torrent,
+                            globalSeedRatioLimit: viewModel.sessionSeedRatioLimit,
+                            globalSeedRatioLimited: viewModel.sessionSeedRatioLimited,
                             onToggle: { Task { await toggle(torrent) } },
                             onRemove: { Task { await remove(torrent) } },
                             onRemoveWithData: { pendingDelete = torrent },
