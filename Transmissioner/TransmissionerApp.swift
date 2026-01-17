@@ -16,13 +16,6 @@ struct TransmissionerApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        WindowGroup(id: "main") {
-            MainWindowView()
-                .environmentObject(serviceStore)
-                .environmentObject(appState)
-                .environmentObject(preferences)
-        }
-
         WindowGroup(id: "settings") {
             SettingsView()
                 .environmentObject(serviceStore)

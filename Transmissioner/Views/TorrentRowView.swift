@@ -4,6 +4,7 @@ struct TorrentRowView: View {
     let torrent: TorrentInfo
     let onToggle: () -> Void
     let onRemove: () -> Void
+    let onRemoveWithData: () -> Void
     let onVerify: () -> Void
     let onReannounce: () -> Void
 
@@ -54,6 +55,7 @@ struct TorrentRowView: View {
             Button("Reannounce", action: onReannounce)
             Divider()
             Button("Remove", role: .destructive, action: onRemove)
+            Button("Remove & Delete Data", role: .destructive, action: onRemoveWithData)
         }
     }
 

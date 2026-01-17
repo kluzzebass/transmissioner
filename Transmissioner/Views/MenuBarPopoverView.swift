@@ -25,9 +25,6 @@ struct MenuBarPopoverView: View {
                         Task { await viewModel.stop() }
                     }
                     Spacer()
-                    Button("Open Window") {
-                        openWindow(id: "main")
-                    }
                     Button("Settings", action: openSettings)
                 }
                 .buttonStyle(.bordered)
