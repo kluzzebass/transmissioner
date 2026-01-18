@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import SwiftUI
 
 @MainActor
 final class TorrentListViewModel: ObservableObject {
@@ -26,7 +27,7 @@ final class TorrentListViewModel: ObservableObject {
 
     func refresh() async {
         guard let client else { return }
-        isLoading = true
+        isLoading = torrents.isEmpty
         defer {
             isLoading = false
             lastUpdated = Date()
@@ -37,7 +38,8 @@ final class TorrentListViewModel: ObservableObject {
                 method: "torrent-get",
                 arguments: TorrentGetArguments(fields: TorrentInfo.defaultFields, ids: nil)
             )
-            torrents = response.torrents.sorted(by: { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending })
+            let sorted = response.torrents.sorted(by: { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending })
+            applyInPlaceUpdates(sorted)
             lastError = nil
             do {
                 let session: SessionGetResponseArguments = try await client.request(
@@ -53,6 +55,52 @@ final class TorrentListViewModel: ObservableObject {
         } catch {
             lastError = error.localizedDescription
         }
+    }
+
+    private func applyInPlaceUpdates(_ incoming: [TorrentInfo]) {
+        var incomingById: [Int: TorrentInfo] = [:]
+        incomingById.reserveCapacity(incoming.count)
+        incoming.forEach { incomingById[$0.id] = $0 }
+
+        var removedIndices: [Int] = []
+        removedIndices.reserveCapacity(max(0, torrents.count - incoming.count))
+
+        for index in torrents.indices {
+            let current = torrents[index]
+            if let updated = incomingById.removeValue(forKey: current.id) {
+                if updated != current {
+                    torrents[index] = updated
+                }
+            } else {
+                removedIndices.append(index)
+            }
+        }
+
+        if !removedIndices.isEmpty {
+            for index in removedIndices.sorted(by: >) {
+                torrents.remove(at: index)
+            }
+        }
+
+        if !incomingById.isEmpty {
+            torrents.append(contentsOf: incomingById.values)
+        }
+
+        if torrents.count != incoming.count || !isSortedByName(torrents) {
+            withAnimation(.none) {
+                torrents = incoming
+            }
+        }
+    }
+
+    private func isSortedByName(_ list: [TorrentInfo]) -> Bool {
+        guard list.count > 1 else { return true }
+        for (lhs, rhs) in zip(list, list.dropFirst()) {
+            if lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedDescending {
+                return false
+            }
+        }
+        return true
     }
 
     func start(ids: [Int]? = nil) async {

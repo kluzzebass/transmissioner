@@ -20,9 +20,7 @@ struct MenuBarPopoverView: View {
                 TorrentListView(
                     viewModel: viewModel,
                     compact: true,
-                    onUserInteraction: {
-                        suppressRefreshUntil = Date().addingTimeInterval(1.5)
-                    }
+                    onUserInteraction: {}
                 )
 
                 HStack(spacing: 8) {
@@ -89,11 +87,9 @@ struct MenuBarPopoverView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: NSMenu.didBeginTrackingNotification)) { _ in
             isMenuTracking = true
-            suppressRefreshUntil = Date().addingTimeInterval(2)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSMenu.didEndTrackingNotification)) { _ in
             isMenuTracking = false
-            suppressRefreshUntil = Date().addingTimeInterval(0.5)
         }
     }
 
