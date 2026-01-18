@@ -11,7 +11,7 @@
 ## High Priority (Immediate usefulness)
 
 - [x] Search, sort, and filtering by status.
-- [ ] Global bandwidth limits and per-direction limits.
+- [x] Global bandwidth limits and per-direction limits.
 - [ ] Session settings: speed limits, alternate limits schedule.
 - [ ] Queue order (move top/bottom, move up/down).
 - [ ] Bandwidth priority per torrent.
