@@ -10,7 +10,7 @@
 
 ## High Priority (Immediate usefulness)
 
-- [ ] Search, sort, and filtering by status.
+- [x] Search, sort, and filtering by status.
 - [ ] Global bandwidth limits and per-direction limits.
 - [ ] Session settings: speed limits, alternate limits schedule.
 - [ ] Queue order (move top/bottom, move up/down).
