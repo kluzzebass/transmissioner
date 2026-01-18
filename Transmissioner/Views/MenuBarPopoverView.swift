@@ -41,6 +41,23 @@ struct MenuBarPopoverView: View {
                         }
                         .help("Stop All")
 
+            Button {
+                Task { await viewModel.setAltSpeed(enabled: !viewModel.altSpeedEnabled) }
+            } label: {
+                Image(systemName: viewModel.altSpeedEnabled ? "tortoise.fill" : "tortoise")
+                    .foregroundStyle(viewModel.altSpeedEnabled ? Color.green : Color.primary)
+            }
+            .help("Temporary Speed Limit")
+
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "bandwidth")
+            } label: {
+                Image(systemName: "speedometer")
+            }
+            .help("Bandwidth Limits")
+            .disabled(selectedService == nil)
+
                     Spacer()
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")
@@ -113,27 +130,18 @@ struct MenuBarPopoverView: View {
 
             Spacer()
 
-            Button {
+            headerIconButton(systemName: "arrow.clockwise", help: "Refresh") {
                 Task { await viewModel.refresh() }
-            } label: {
-                Image(systemName: "arrow.clockwise")
             }
-            .help("Refresh")
 
-            Button {
+            headerIconButton(systemName: "plus", help: "Add Torrent") {
                 showingAddTorrent = true
-            } label: {
-                Image(systemName: "plus")
             }
-            .help("Add Torrent")
             .disabled(selectedService == nil)
 
-            Button {
+            headerIconButton(systemName: "power", help: "Quit") {
                 NSApplication.shared.terminate(nil)
-            } label: {
-                Image(systemName: "power")
             }
-            .help("Quit")
         }
     }
 
@@ -173,7 +181,7 @@ struct MenuBarPopoverView: View {
 
         var body: some View {
             HStack(spacing: 8) {
-                TextField("Search torrents", text: $filterState.searchText)
+                TextField("Filter torrents", text: $filterState.searchText)
                     .textFieldStyle(.roundedBorder)
 
                 Menu {
@@ -230,6 +238,18 @@ struct MenuBarPopoverView: View {
     private func openSettings() {
         NSApp.activate(ignoringOtherApps: true)
         openWindow(id: "settings")
+    }
+
+    private func headerIconButton(systemName: String, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .frame(width: 16, height: 16)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .frame(width: 28, height: 28)
+        .contentShape(Rectangle())
+        .help(help)
     }
 
     private enum StatusFilter: String, CaseIterable, Identifiable {
@@ -294,5 +314,7 @@ struct MenuBarPopoverView: View {
         @Published var statusFilter: StatusFilter = .all
         @Published var sortOrder: SortOrder = .name
     }
+
+    
 }
 

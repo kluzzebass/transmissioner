@@ -56,11 +56,59 @@ struct SessionGetResponseArguments: Decodable {
     let downloadDir: String?
     let seedRatioLimit: Double?
     let seedRatioLimited: Bool?
+    let altSpeedEnabled: Bool?
+    let altSpeedTimeEnabled: Bool?
+    let altSpeedTimeBegin: Int?
+    let altSpeedTimeEnd: Int?
+    let altSpeedTimeDay: Int?
+    let speedLimitDown: Int?
+    let speedLimitDownEnabled: Bool?
+    let speedLimitUp: Int?
+    let speedLimitUpEnabled: Bool?
 
     enum CodingKeys: String, CodingKey {
         case version
         case downloadDir = "download-dir"
         case seedRatioLimit = "seedRatioLimit"
         case seedRatioLimited = "seedRatioLimited"
+        case altSpeedEnabled = "alt-speed-enabled"
+        case altSpeedTimeEnabled = "alt-speed-time-enabled"
+        case altSpeedTimeBegin = "alt-speed-time-begin"
+        case altSpeedTimeEnd = "alt-speed-time-end"
+        case altSpeedTimeDay = "alt-speed-time-day"
+        case speedLimitDown = "speed-limit-down"
+        case speedLimitDownEnabled = "speed-limit-down-enabled"
+        case speedLimitUp = "speed-limit-up"
+        case speedLimitUpEnabled = "speed-limit-up-enabled"
+    }
+}
+
+struct SessionSetArguments: Encodable {
+    let speedLimitDown: Int
+    let speedLimitDownEnabled: Bool
+    let speedLimitUp: Int
+    let speedLimitUpEnabled: Bool
+    let altSpeedTimeEnabled: Bool
+    let altSpeedTimeBegin: Int
+    let altSpeedTimeEnd: Int
+    let altSpeedTimeDay: Int
+
+    enum CodingKeys: String, CodingKey {
+        case speedLimitDown = "speed-limit-down"
+        case speedLimitDownEnabled = "speed-limit-down-enabled"
+        case speedLimitUp = "speed-limit-up"
+        case speedLimitUpEnabled = "speed-limit-up-enabled"
+        case altSpeedTimeEnabled = "alt-speed-time-enabled"
+        case altSpeedTimeBegin = "alt-speed-time-begin"
+        case altSpeedTimeEnd = "alt-speed-time-end"
+        case altSpeedTimeDay = "alt-speed-time-day"
+    }
+}
+
+struct SessionAltSpeedArguments: Encodable {
+    let altSpeedEnabled: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case altSpeedEnabled = "alt-speed-enabled"
     }
 }

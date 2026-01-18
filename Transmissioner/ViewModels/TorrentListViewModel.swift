@@ -10,6 +10,7 @@ final class TorrentListViewModel: ObservableObject {
     @Published var lastUpdated: Date?
     @Published var sessionSeedRatioLimit: Double?
     @Published var sessionSeedRatioLimited = false
+    @Published var altSpeedEnabled = false
 
     private var client: TransmissionRPCClient?
     private var currentConfig: ServiceConfig?
@@ -48,9 +49,11 @@ final class TorrentListViewModel: ObservableObject {
                 )
                 sessionSeedRatioLimit = session.seedRatioLimit
                 sessionSeedRatioLimited = session.seedRatioLimited ?? false
+                altSpeedEnabled = session.altSpeedEnabled ?? false
             } catch {
                 sessionSeedRatioLimit = nil
                 sessionSeedRatioLimited = false
+                altSpeedEnabled = false
             }
         } catch {
             lastError = error.localizedDescription
@@ -117,6 +120,19 @@ final class TorrentListViewModel: ObservableObject {
 
     func reannounce(ids: [Int]) async {
         await runAction(method: "torrent-reannounce", arguments: TorrentActionArguments(ids: ids))
+    }
+
+    func setAltSpeed(enabled: Bool) async {
+        guard let client else { return }
+        do {
+            let _: EmptyResponse = try await client.request(
+                method: "session-set",
+                arguments: SessionAltSpeedArguments(altSpeedEnabled: enabled)
+            )
+            altSpeedEnabled = enabled
+        } catch {
+            lastError = error.localizedDescription
+        }
     }
 
     func remove(ids: [Int], deleteData: Bool) async {

@@ -8,7 +8,7 @@ struct TransmissionerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
-        MenuBarExtra("Transmissioner", systemImage: "arrow.down.circle") {
+        MenuBarExtra("Transmissioner", image: "MenuBarIcon") {
             MenuBarPopoverView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
@@ -16,11 +16,18 @@ struct TransmissionerApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        WindowGroup(id: "settings") {
+        Window("Settings", id: "settings") {
             SettingsView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+
+        Window("Bandwidth Limits", id: "bandwidth") {
+            BandwidthLimitsView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

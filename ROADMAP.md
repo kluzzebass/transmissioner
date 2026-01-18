@@ -12,7 +12,8 @@
 
 - [x] Search, sort, and filtering by status.
 - [x] Global bandwidth limits and per-direction limits.
-- [ ] Session settings: speed limits, alternate limits schedule.
+- [x] Session settings: speed limits, alternate limits schedule.
+- [x] Temporary speed limit (turtle mode) toggle.
 - [ ] Queue order (move top/bottom, move up/down).
 - [ ] Bandwidth priority per torrent.
 - [ ] Set location / move data.
