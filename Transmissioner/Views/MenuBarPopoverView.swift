@@ -18,14 +18,25 @@ struct MenuBarPopoverView: View {
                 TorrentListView(viewModel: viewModel, compact: true)
 
                 HStack(spacing: 8) {
-                    Button("Start All") {
+                        Button {
                         Task { await viewModel.start() }
-                    }
-                    Button("Stop All") {
+                        } label: {
+                            Image(systemName: "play.fill")
+                        }
+                        .help("Start All")
+
+                        Button {
                         Task { await viewModel.stop() }
-                    }
+                        } label: {
+                            Image(systemName: "pause.fill")
+                        }
+                        .help("Stop All")
+
                     Spacer()
-                    Button("Settings", action: openSettings)
+                        Button(action: openSettings) {
+                            Image(systemName: "gearshape")
+                        }
+                        .help("Settings")
                 }
                 .buttonStyle(.bordered)
             } else {
@@ -33,7 +44,7 @@ struct MenuBarPopoverView: View {
             }
         }
         .padding(12)
-        .frame(width: 420)
+        .frame(width: 500)
         .overlay {
             if showingAddTorrent {
                 ZStack {
@@ -147,3 +158,4 @@ struct MenuBarPopoverView: View {
         openWindow(id: "settings")
     }
 }
+

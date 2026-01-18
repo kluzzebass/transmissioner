@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct TorrentRowView: View {
@@ -5,10 +6,12 @@ struct TorrentRowView: View {
     let globalSeedRatioLimit: Double?
     let globalSeedRatioLimited: Bool
     let onToggle: () -> Void
-    let onRemove: () -> Void
-    let onRemoveWithData: () -> Void
+    let onRequestRemove: () -> Void
+    let onRequestRemoveWithData: () -> Void
     let onVerify: () -> Void
     let onReannounce: () -> Void
+    @State private var optionPressed = false
+    @State private var flagsMonitor: Any?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -16,6 +19,7 @@ struct TorrentRowView: View {
                 Text(torrent.name)
                     .font(.headline)
                     .lineLimit(1)
+                    .help(torrent.name)
 
                 StatusPillView(text: statusText, color: statusColor)
 
@@ -26,28 +30,44 @@ struct TorrentRowView: View {
                 }
                 .buttonStyle(.borderless)
                 .help(torrent.isActive ? "Pause" : "Start")
+
+                Button(action: removeAction) {
+                    Image(systemName: "trash")
+                        .foregroundStyle(optionPressed ? Color.red : Color.secondary)
+                }
+                .buttonStyle(.borderless)
+                .help(optionPressed
+                      ? "Remove & Delete Data (Option-click)"
+                      : "Remove (Option-click to delete data)")
             }
 
             progressBar
 
-            HStack(spacing: 12) {
-                Text(Formatters.percentString(torrent.percentDone))
+            if let errorText = errorText {
+                Text(errorText)
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.red)
+                    .lineLimit(2)
+            } else {
+                HStack(spacing: 12) {
+                    Text(Formatters.percentString(torrent.percentDone))
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                Text("DL \(Formatters.rateString(torrent.rateDownload))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    Text("DL \(Formatters.rateString(torrent.rateDownload))")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                Text("UL \(Formatters.rateString(torrent.rateUpload))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    Text("UL \(Formatters.rateString(torrent.rateUpload))")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                Text("ETA \(Formatters.etaString(torrent.eta))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    Text("ETA \(Formatters.etaString(torrent.eta))")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
 
-                Spacer()
+                    Spacer()
+                }
             }
         }
         .contextMenu {
@@ -55,8 +75,21 @@ struct TorrentRowView: View {
             Button("Verify", action: onVerify)
             Button("Reannounce", action: onReannounce)
             Divider()
-            Button("Remove", role: .destructive, action: onRemove)
-            Button("Remove & Delete Data", role: .destructive, action: onRemoveWithData)
+            Button("Remove", role: .destructive, action: onRequestRemove)
+            Button("Remove & Delete Data", role: .destructive, action: onRequestRemoveWithData)
+        }
+        .onAppear {
+            optionPressed = NSEvent.modifierFlags.contains(.option)
+            flagsMonitor = NSEvent.addLocalMonitorForEvents(matching: [.flagsChanged]) { event in
+                optionPressed = event.modifierFlags.contains(.option)
+                return event
+            }
+        }
+        .onDisappear {
+            if let flagsMonitor {
+                NSEvent.removeMonitor(flagsMonitor)
+                self.flagsMonitor = nil
+            }
         }
     }
 
@@ -79,6 +112,11 @@ struct TorrentRowView: View {
         case .unknown:
             return "Unknown"
         }
+    }
+
+    private var errorText: String? {
+        guard let errorString = torrent.errorString, !errorString.isEmpty else { return nil }
+        return errorString
     }
 
     private var statusColor: Color {
@@ -110,6 +148,14 @@ struct TorrentRowView: View {
             return .gray
         case .error:
             return .red
+        }
+    }
+
+    private func removeAction() {
+        if optionPressed {
+            onRequestRemoveWithData()
+        } else {
+            onRequestRemove()
         }
     }
 
