@@ -8,46 +8,38 @@
       reannounce.
 - [x] Add torrent by magnet/URL.
 
-## Session & Global Controls
+## High Priority (Immediate usefulness)
 
-- Session info display (version, default download dir).
-- Session settings: speed limits, alternate limits schedule.
-- Global bandwidth limits and per-direction limits.
-- Encryption mode and peer limit settings.
-- Blocklist enable/update.
-- Port settings and port test.
-- Free space lookup for a path.
+- [ ] Search, sort, and filtering by status.
+- [ ] Global bandwidth limits and per-direction limits.
+- [ ] Session settings: speed limits, alternate limits schedule.
+- [ ] Queue order (move top/bottom, move up/down).
+- [ ] Bandwidth priority per torrent.
+- [ ] Set location / move data.
+- [ ] File selection and priority.
+- [ ] Session info display (version, default download dir).
+- [ ] Free space lookup for a path.
 
-## Per-Torrent Controls
+## Medium Priority
 
-- Queue order (move top/bottom, move up/down).
-- Bandwidth priority per torrent.
-- Set location / move data.
-- Rename torrent.
-- Set ratio limits and seeding options.
-- File selection and priority.
-- Labels / categories (if supported).
+- [ ] Trackers list, add/remove trackers.
+- [ ] Per-torrent stats and history.
+- [ ] Peers list and per-peer stats.
+- [ ] Set ratio limits and seeding options.
+- [ ] Rename torrent.
+- [ ] Labels / categories (if supported).
+- [ ] Detailed error states and retry actions.
+- [ ] Encryption mode and peer limit settings.
+- [ ] Blocklist enable/update.
+- [ ] Port settings and port test.
+- [ ] Compact vs detailed view toggle.
+- [ ] Keyboard shortcuts for common actions.
+- [ ] Onboarding / connection diagnostics.
+- [ ] Offline / reconnect handling with clear state.
 
-## Metadata & Details Views
+## Later / Distribution
 
-- Trackers list, add/remove trackers.
-- Files list with progress and priorities.
-- Peers list and per-peer stats.
-- Detailed error states and retry actions.
-- Per-torrent stats and history.
-
-## UX & Quality
-
-- Search, sort, and filtering by status.
-- Compact vs detailed view toggle.
-- Keyboard shortcuts for common actions.
-- Background refresh interval control.
-- Onboarding / connection diagnostics.
-- Offline / reconnect handling with clear state.
-
-## Security & Distribution
-
-- Keychain storage for credentials.
-- TLS/HTTPS configuration hints and ATS exceptions UI.
-- Developer ID signing + notarization pipeline.
-- Homebrew cask packaging guide.
+- [ ] Keychain storage for credentials.
+- [ ] TLS/HTTPS configuration hints and ATS exceptions UI.
+- [ ] Developer ID signing + notarization pipeline.
+- [ ] Homebrew cask packaging guide.

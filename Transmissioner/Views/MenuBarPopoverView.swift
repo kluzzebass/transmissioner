@@ -9,13 +9,21 @@ struct MenuBarPopoverView: View {
     @Environment(\.openWindow) private var openWindow
     @StateObject private var viewModel = TorrentListViewModel()
     @State private var showingAddTorrent = false
+    @State private var suppressRefreshUntil = Date.distantPast
+    @State private var isMenuTracking = false
 
     var body: some View {
         VStack(spacing: 12) {
             header
 
             if selectedService != nil {
-                TorrentListView(viewModel: viewModel, compact: true)
+                TorrentListView(
+                    viewModel: viewModel,
+                    compact: true,
+                    onUserInteraction: {
+                        suppressRefreshUntil = Date().addingTimeInterval(1.5)
+                    }
+                )
 
                 HStack(spacing: 8) {
                         Button {
@@ -75,7 +83,17 @@ struct MenuBarPopoverView: View {
         .onChange(of: appState.selectedServiceID) { _, _ in configureViewModel() }
         .onReceive(refreshTimer) { _ in
             guard preferences.autoRefresh, selectedService != nil else { return }
+            guard !isMenuTracking else { return }
+            guard Date() >= suppressRefreshUntil else { return }
             Task { await viewModel.refresh() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSMenu.didBeginTrackingNotification)) { _ in
+            isMenuTracking = true
+            suppressRefreshUntil = Date().addingTimeInterval(2)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSMenu.didEndTrackingNotification)) { _ in
+            isMenuTracking = false
+            suppressRefreshUntil = Date().addingTimeInterval(0.5)
         }
     }
 
