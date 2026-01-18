@@ -175,7 +175,7 @@ struct TorrentRowView: View {
                 }
             }
         }
-        .frame(height: 6)
+        .frame(minHeight: 6)
     }
 
     private var seedOverlayProgress: Double? {

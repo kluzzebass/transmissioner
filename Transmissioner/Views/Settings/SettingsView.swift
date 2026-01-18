@@ -9,6 +9,6 @@ struct SettingsView: View {
             PreferencesView()
                 .tabItem { Label("Preferences", systemImage: "gearshape") }
         }
-        .frame(width: 560, height: 380)
+        .frame(minWidth: 560, minHeight: 380)
     }
 }

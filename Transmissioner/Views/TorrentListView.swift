@@ -89,7 +89,7 @@ struct TorrentListView: View {
                     }
                 }
                 .padding(16)
-                .frame(maxWidth: 360)
+                .frame(maxWidth: .infinity)
                 .background(.ultraThinMaterial)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .overlay(

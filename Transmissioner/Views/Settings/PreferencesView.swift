@@ -14,7 +14,7 @@ struct PreferencesView: View {
                 Text("Refresh interval")
                 Stepper(value: $preferences.autoRefreshInterval, in: 5...60, step: 5) {
                     Text("\(Int(preferences.autoRefreshInterval)) seconds")
-                        .frame(width: 120, alignment: .leading)
+                        .frame(minWidth: 120, alignment: .leading)
                 }
                 .disabled(!preferences.autoRefresh)
             }

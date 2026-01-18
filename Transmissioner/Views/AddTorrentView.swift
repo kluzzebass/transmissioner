@@ -28,6 +28,6 @@ struct AddTorrentView: View {
             }
         }
         .padding(20)
-        .frame(width: 360)
+        .frame(minWidth: 360)
     }
 }

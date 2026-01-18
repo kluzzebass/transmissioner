@@ -11,6 +11,7 @@ struct MenuBarPopoverView: View {
     @State private var showingAddTorrent = false
     @State private var suppressRefreshUntil = Date.distantPast
     @State private var isMenuTracking = false
+    @State private var popoverSize = MenuBarPopoverView.loadPopoverSize()
 
     var body: some View {
         VStack(spacing: 12) {
@@ -50,7 +51,16 @@ struct MenuBarPopoverView: View {
             }
         }
         .padding(12)
-        .frame(width: 500)
+        .frame(minWidth: 360, minHeight: 260)
+        .background(WindowAccessor(
+            minSize: CGSize(width: 360, height: 260),
+            initialSize: popoverSize,
+            onResize: { newSize in
+                let clamped = MenuBarPopoverView.clampedSize(newSize)
+                popoverSize = clamped
+                MenuBarPopoverView.savePopoverSize(clamped)
+            }
+        ))
         .overlay {
             if showingAddTorrent {
                 ZStack {
@@ -105,6 +115,9 @@ struct MenuBarPopoverView: View {
                     Divider()
                 }
                 Button("Manage Services", action: openSettings)
+                Button("Reset Window Size") {
+                    MenuBarPopoverView.resetPopoverSize()
+                }
             } label: {
                 Label(selectedService?.name ?? "No Service", systemImage: "antenna.radiowaves.left.and.right")
             }
@@ -173,3 +186,44 @@ struct MenuBarPopoverView: View {
     }
 }
 
+private extension MenuBarPopoverView {
+    struct StoredSize: Codable {
+        let width: Double
+        let height: Double
+    }
+
+    static let popoverSizeKey = "menuBarPopoverSize"
+
+    static func loadPopoverSize() -> CGSize {
+        let defaults = UserDefaults.standard
+        guard let data = defaults.data(forKey: popoverSizeKey),
+              let stored = try? JSONDecoder().decode(StoredSize.self, from: data) else {
+            return clampedSize(CGSize(width: 500, height: 520))
+        }
+        return clampedSize(CGSize(width: stored.width, height: stored.height))
+    }
+
+    static func savePopoverSize(_ size: CGSize) {
+        let clamped = clampedSize(size)
+        let stored = StoredSize(width: clamped.width, height: clamped.height)
+        if let data = try? JSONEncoder().encode(stored) {
+            UserDefaults.standard.set(data, forKey: popoverSizeKey)
+        }
+    }
+
+    static func resetPopoverSize() {
+        UserDefaults.standard.removeObject(forKey: popoverSizeKey)
+    }
+
+    static func clampedSize(_ size: CGSize) -> CGSize {
+        let minWidth: CGFloat = 360
+        let minHeight: CGFloat = 260
+        let screenSize = NSScreen.main?.visibleFrame.size ?? CGSize(width: 1200, height: 900)
+        let maxWidth = max(minWidth, screenSize.width * 0.9)
+        let maxHeight = max(minHeight, screenSize.height * 0.9)
+        return CGSize(
+            width: min(max(size.width, minWidth), maxWidth),
+            height: min(max(size.height, minHeight), maxHeight)
+        )
+    }
+}
