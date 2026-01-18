@@ -51,9 +51,9 @@ struct MenuBarPopoverView: View {
             }
         }
         .padding(12)
-        .frame(minWidth: 360, minHeight: 260)
+        .frame(minWidth: 600, minHeight: 800)
         .background(WindowAccessor(
-            minSize: CGSize(width: 360, height: 260),
+            minSize: CGSize(width: 600, height: 800),
             initialSize: popoverSize,
             onResize: { newSize in
                 let clamped = MenuBarPopoverView.clampedSize(newSize)
@@ -216,8 +216,8 @@ private extension MenuBarPopoverView {
     }
 
     static func clampedSize(_ size: CGSize) -> CGSize {
-        let minWidth: CGFloat = 360
-        let minHeight: CGFloat = 260
+        let minWidth: CGFloat = 600
+        let minHeight: CGFloat = 800
         let screenSize = NSScreen.main?.visibleFrame.size ?? CGSize(width: 1200, height: 900)
         let maxWidth = max(minWidth, screenSize.width * 0.9)
         let maxHeight = max(minHeight, screenSize.height * 0.9)
