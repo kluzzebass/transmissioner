@@ -2,8 +2,8 @@ import SwiftUI
 
 struct TorrentListView: View {
     @ObservedObject var viewModel: TorrentListViewModel
+    let torrents: [TorrentInfo]
     let compact: Bool
-    let onUserInteraction: () -> Void
     @State private var pendingRemoval: PendingRemoval?
 
     var body: some View {
@@ -28,7 +28,7 @@ struct TorrentListView: View {
                 }
 
                 List {
-                    ForEach(viewModel.torrents) { torrent in
+                    ForEach(torrents) { torrent in
                         TorrentRowView(
                             torrent: torrent,
                             globalSeedRatioLimit: viewModel.sessionSeedRatioLimit,

@@ -11,16 +11,19 @@ struct MenuBarPopoverView: View {
     @State private var showingAddTorrent = false
     @State private var suppressRefreshUntil = Date.distantPast
     @State private var isMenuTracking = false
+    @StateObject private var filterState = FilterState()
 
     var body: some View {
         VStack(spacing: 12) {
             header
 
             if selectedService != nil {
+                FilterBarView(filterState: filterState)
+
                 TorrentListView(
                     viewModel: viewModel,
-                    compact: true,
-                    onUserInteraction: {}
+                    torrents: filteredTorrents,
+                    compact: true
                 )
 
                 HStack(spacing: 8) {
@@ -81,7 +84,6 @@ struct MenuBarPopoverView: View {
         .onChange(of: appState.selectedServiceID) { _, _ in configureViewModel() }
         .onReceive(refreshTimer) { _ in
             guard preferences.autoRefresh, selectedService != nil else { return }
-            guard !isMenuTracking else { return }
             guard Date() >= suppressRefreshUntil else { return }
             Task { await viewModel.refresh() }
         }
@@ -160,6 +162,64 @@ struct MenuBarPopoverView: View {
             .autoconnect()
     }
 
+    private struct FilterBarView: View, Equatable {
+        @ObservedObject var filterState: FilterState
+
+        static func == (lhs: FilterBarView, rhs: FilterBarView) -> Bool {
+            lhs.filterState.searchText == rhs.filterState.searchText
+                && lhs.filterState.statusFilter == rhs.filterState.statusFilter
+                && lhs.filterState.sortOrder == rhs.filterState.sortOrder
+        }
+
+        var body: some View {
+            HStack(spacing: 8) {
+                TextField("Search torrents", text: $filterState.searchText)
+                    .textFieldStyle(.roundedBorder)
+
+                Menu {
+                    Picker("Status", selection: $filterState.statusFilter) {
+                        ForEach(StatusFilter.allCases) { filter in
+                            Text(filter.label).tag(filter)
+                        }
+                    }
+                } label: {
+                    Label(filterState.statusFilter.label, systemImage: "line.3.horizontal.decrease.circle")
+                }
+
+                Menu {
+                    Picker("Sort", selection: $filterState.sortOrder) {
+                        ForEach(SortOrder.allCases) { order in
+                            Text(order.label).tag(order)
+                        }
+                    }
+                } label: {
+                    Label(filterState.sortOrder.label, systemImage: "arrow.up.arrow.down")
+                }
+            }
+        }
+    }
+
+    private var filteredTorrents: [TorrentInfo] {
+        var result = viewModel.torrents
+
+        if !filterState.searchText.isEmpty {
+            result = result.filter { $0.name.localizedCaseInsensitiveContains(filterState.searchText) }
+        }
+
+        result = result.filter { filterState.statusFilter.matches($0) }
+
+        switch filterState.sortOrder {
+        case .name:
+            return result.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+        case .progress:
+            return result.sorted { $0.percentDone > $1.percentDone }
+        case .eta:
+            return result.sorted { $0.eta < $1.eta }
+        case .activity:
+            return result.sorted { $0.isActive && !$1.isActive }
+        }
+    }
+
     private func configureViewModel() {
         if appState.selectedServiceID == nil, let first = serviceStore.services.first {
             appState.selectedServiceID = first.id
@@ -170,6 +230,69 @@ struct MenuBarPopoverView: View {
     private func openSettings() {
         NSApp.activate(ignoringOtherApps: true)
         openWindow(id: "settings")
+    }
+
+    private enum StatusFilter: String, CaseIterable, Identifiable {
+        case all
+        case downloading
+        case seeding
+        case completed
+        case stopped
+        case error
+
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .all: return "All"
+            case .downloading: return "Downloading"
+            case .seeding: return "Seeding"
+            case .completed: return "Completed"
+            case .stopped: return "Stopped"
+            case .error: return "Error"
+            }
+        }
+
+        func matches(_ torrent: TorrentInfo) -> Bool {
+            switch self {
+            case .all:
+                return true
+            case .error:
+                return (torrent.errorString?.isEmpty == false)
+            case .downloading:
+                return torrent.status == TransmissionStatus.downloading.rawValue
+            case .seeding:
+                return torrent.status == TransmissionStatus.seeding.rawValue
+            case .completed:
+                return torrent.isFinished
+            case .stopped:
+                return torrent.status == TransmissionStatus.stopped.rawValue
+            }
+        }
+    }
+
+    private enum SortOrder: String, CaseIterable, Identifiable {
+        case name
+        case progress
+        case eta
+        case activity
+
+        var id: String { rawValue }
+
+        var label: String {
+            switch self {
+            case .name: return "Name"
+            case .progress: return "Progress"
+            case .eta: return "ETA"
+            case .activity: return "Active"
+            }
+        }
+    }
+
+    private final class FilterState: ObservableObject {
+        @Published var searchText = ""
+        @Published var statusFilter: StatusFilter = .all
+        @Published var sortOrder: SortOrder = .name
     }
 }
 
