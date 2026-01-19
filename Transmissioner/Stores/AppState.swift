@@ -7,6 +7,7 @@ final class AppState: ObservableObject {
             defaults.set(selectedServiceID?.uuidString, forKey: selectedServiceKey)
         }
     }
+    @Published var moveLocationTorrentIDs: [Int] = []
 
     private let defaults = UserDefaults.standard
     private let selectedServiceKey = "selectedServiceID"

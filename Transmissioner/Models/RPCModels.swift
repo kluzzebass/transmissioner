@@ -49,6 +49,18 @@ struct TorrentSetArguments: Encodable {
     }
 }
 
+struct TorrentSetLocationArguments: Encodable {
+    let ids: [Int]
+    let location: String
+    let move: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case ids
+        case location
+        case move
+    }
+}
+
 struct TorrentAddArguments: Encodable {
     let filename: String
     let downloadDir: String?

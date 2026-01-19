@@ -29,5 +29,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Set Location", id: "set-location") {
+            MoveLocationView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

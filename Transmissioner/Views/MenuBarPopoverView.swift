@@ -23,7 +23,12 @@ struct MenuBarPopoverView: View {
                 TorrentListView(
                     viewModel: viewModel,
                     torrents: filteredTorrents,
-                    compact: true
+                    compact: true,
+                    onSetLocation: { torrent in
+                        appState.moveLocationTorrentIDs = [torrent.id]
+                        NSApp.activate(ignoringOtherApps: true)
+                        openWindow(id: "set-location")
+                    }
                 )
 
                 HStack(spacing: 8) {

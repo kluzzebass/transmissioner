@@ -17,6 +17,7 @@ struct TorrentRowView: View {
     let onSetPriorityLow: () -> Void
     let onSetPriorityNormal: () -> Void
     let onSetPriorityHigh: () -> Void
+    let onSetLocation: () -> Void
     @State private var optionPressed = false
     @State private var flagsMonitor: Any?
 
@@ -81,6 +82,7 @@ struct TorrentRowView: View {
             Button(torrent.isActive ? "Pause" : "Start", action: onToggle)
             Button("Verify", action: onVerify)
             Button("Reannounce", action: onReannounce)
+            Button("Set Location…", action: onSetLocation)
             Divider()
             Button {
                 onSetPriorityHigh()

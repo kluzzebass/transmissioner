@@ -126,6 +126,13 @@ final class TorrentListViewModel: ObservableObject {
         await runAction(method: "torrent-set", arguments: TorrentSetArguments(ids: ids, bandwidthPriority: priority))
     }
 
+    func setLocation(ids: [Int], location: String, moveData: Bool) async {
+        await runAction(
+            method: "torrent-set-location",
+            arguments: TorrentSetLocationArguments(ids: ids, location: location, move: moveData)
+        )
+    }
+
     func moveQueueTop(ids: [Int]) async {
         await runAction(method: "queue-move-top", arguments: TorrentActionArguments(ids: ids))
     }
