@@ -10,6 +10,13 @@ struct TorrentRowView: View {
     let onRequestRemoveWithData: () -> Void
     let onVerify: () -> Void
     let onReannounce: () -> Void
+    let onQueueMoveTop: () -> Void
+    let onQueueMoveUp: () -> Void
+    let onQueueMoveDown: () -> Void
+    let onQueueMoveBottom: () -> Void
+    let onSetPriorityLow: () -> Void
+    let onSetPriorityNormal: () -> Void
+    let onSetPriorityHigh: () -> Void
     @State private var optionPressed = false
     @State private var flagsMonitor: Any?
 
@@ -74,6 +81,27 @@ struct TorrentRowView: View {
             Button(torrent.isActive ? "Pause" : "Start", action: onToggle)
             Button("Verify", action: onVerify)
             Button("Reannounce", action: onReannounce)
+            Divider()
+            Button {
+                onSetPriorityHigh()
+            } label: {
+                Label("Bandwidth Priority: High", systemImage: priorityIcon(1))
+            }
+            Button {
+                onSetPriorityNormal()
+            } label: {
+                Label("Bandwidth Priority: Normal", systemImage: priorityIcon(0))
+            }
+            Button {
+                onSetPriorityLow()
+            } label: {
+                Label("Bandwidth Priority: Low", systemImage: priorityIcon(-1))
+            }
+            Divider()
+            Button("Move to Top of Queue", action: onQueueMoveTop)
+            Button("Move Up in Queue", action: onQueueMoveUp)
+            Button("Move Down in Queue", action: onQueueMoveDown)
+            Button("Move to Bottom of Queue", action: onQueueMoveBottom)
             Divider()
             Button("Remove", role: .destructive, action: onRequestRemove)
             Button("Remove & Delete Data", role: .destructive, action: onRequestRemoveWithData)
@@ -157,6 +185,11 @@ struct TorrentRowView: View {
         } else {
             onRequestRemove()
         }
+    }
+
+    private func priorityIcon(_ value: Int) -> String {
+        guard let current = torrent.bandwidthPriority else { return "circle" }
+        return current == value ? "checkmark.circle.fill" : "circle"
     }
 
     private var progressBar: some View {

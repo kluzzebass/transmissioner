@@ -39,6 +39,16 @@ struct TorrentRemoveArguments: Encodable {
     }
 }
 
+struct TorrentSetArguments: Encodable {
+    let ids: [Int]
+    let bandwidthPriority: Int
+
+    enum CodingKeys: String, CodingKey {
+        case ids
+        case bandwidthPriority = "bandwidthPriority"
+    }
+}
+
 struct TorrentAddArguments: Encodable {
     let filename: String
     let downloadDir: String?

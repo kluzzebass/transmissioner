@@ -122,6 +122,26 @@ final class TorrentListViewModel: ObservableObject {
         await runAction(method: "torrent-reannounce", arguments: TorrentActionArguments(ids: ids))
     }
 
+    func setBandwidthPriority(ids: [Int], priority: Int) async {
+        await runAction(method: "torrent-set", arguments: TorrentSetArguments(ids: ids, bandwidthPriority: priority))
+    }
+
+    func moveQueueTop(ids: [Int]) async {
+        await runAction(method: "queue-move-top", arguments: TorrentActionArguments(ids: ids))
+    }
+
+    func moveQueueUp(ids: [Int]) async {
+        await runAction(method: "queue-move-up", arguments: TorrentActionArguments(ids: ids))
+    }
+
+    func moveQueueDown(ids: [Int]) async {
+        await runAction(method: "queue-move-down", arguments: TorrentActionArguments(ids: ids))
+    }
+
+    func moveQueueBottom(ids: [Int]) async {
+        await runAction(method: "queue-move-bottom", arguments: TorrentActionArguments(ids: ids))
+    }
+
     func setAltSpeed(enabled: Bool) async {
         guard let client else { return }
         do {

@@ -15,6 +15,7 @@ struct TorrentInfo: Identifiable, Decodable, Equatable {
     let uploadRatio: Double
     let seedRatioLimit: Double?
     let seedRatioMode: Int?
+    let bandwidthPriority: Int?
 
     static let defaultFields = [
         "id",
@@ -30,7 +31,8 @@ struct TorrentInfo: Identifiable, Decodable, Equatable {
         "errorString",
         "uploadRatio",
         "seedRatioLimit",
-        "seedRatioMode"
+        "seedRatioMode",
+        "bandwidthPriority"
     ]
 
     var isStopped: Bool {
