@@ -68,6 +68,15 @@ struct MenuBarPopoverView: View {
             .help("Bandwidth Limits")
             .disabled(selectedService == nil)
 
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "session-info")
+            } label: {
+                Image(systemName: "info.circle")
+            }
+            .help("Session Info")
+            .disabled(selectedService == nil)
+
                     Spacer()
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")

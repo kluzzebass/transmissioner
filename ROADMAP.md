@@ -18,7 +18,7 @@
 - [x] Bandwidth priority per torrent.
 - [x] Set location / move data.
 - [x] File selection and priority.
-- [ ] Session info display (version, default download dir).
+- [x] Session info display (version, default download dir).
 - [ ] Free space lookup for a path.
 
 ## Medium Priority

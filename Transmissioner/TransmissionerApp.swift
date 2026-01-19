@@ -41,5 +41,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Session Info", id: "session-info") {
+            SessionInfoView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }
