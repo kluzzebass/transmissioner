@@ -68,6 +68,9 @@ struct MenuBarPopoverView: View {
                         appState.errorDetailsTorrentID = torrent.id
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "error-details")
+                    },
+                    onRetryConnection: {
+                        Task { await viewModel.refresh() }
                     }
                 )
 

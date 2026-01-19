@@ -36,7 +36,7 @@
 - [x] Compact vs detailed view toggle.
 - [x] Keyboard shortcuts for common actions.
 - [x] Onboarding / connection diagnostics.
-- [ ] Offline / reconnect handling with clear state.
+- [x] Offline / reconnect handling with clear state.
 
 ## Later / Distribution
 

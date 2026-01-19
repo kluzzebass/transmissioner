@@ -8,6 +8,7 @@ final class TorrentListViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var lastError: String?
     @Published var lastUpdated: Date?
+    @Published var isOffline = false
     @Published var sessionSeedRatioLimit: Double?
     @Published var sessionSeedRatioLimited = false
     @Published var altSpeedEnabled = false
@@ -21,6 +22,7 @@ final class TorrentListViewModel: ObservableObject {
         client = config.map { TransmissionRPCClient(config: $0) }
         torrents = []
         lastError = nil
+        isOffline = false
         if config != nil {
             Task { await refresh() }
         }
@@ -42,6 +44,7 @@ final class TorrentListViewModel: ObservableObject {
             let sorted = response.torrents.sorted(by: { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending })
             applyInPlaceUpdates(sorted)
             lastError = nil
+            isOffline = false
             do {
                 let session: SessionGetResponseArguments = try await client.request(
                     method: "session-get",
@@ -57,6 +60,7 @@ final class TorrentListViewModel: ObservableObject {
             }
         } catch {
             lastError = error.localizedDescription
+            isOffline = true
         }
     }
 
@@ -201,6 +205,7 @@ final class TorrentListViewModel: ObservableObject {
             await refresh()
         } catch {
             lastError = error.localizedDescription
+            isOffline = true
         }
     }
 }

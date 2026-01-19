@@ -13,6 +13,7 @@ struct TorrentListView: View {
     let onRename: (TorrentInfo) -> Void
     let onLabels: (TorrentInfo) -> Void
     let onErrorDetails: (TorrentInfo) -> Void
+    let onRetryConnection: () -> Void
     @State private var pendingRemoval: PendingRemoval?
 
     var body: some View {
@@ -25,6 +26,26 @@ struct TorrentListView: View {
                         Text("Connecting to Transmission…")
                             .font(.caption)
                             .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                if viewModel.isOffline {
+                    HStack(spacing: 8) {
+                        Text("Offline")
+                            .font(.caption)
+                            .foregroundColor(.red)
+                        if let lastError = viewModel.lastError {
+                            Text(lastError)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        Button("Retry Now") {
+                            onRetryConnection()
+                        }
+                        .controlSize(.small)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
