@@ -70,6 +70,30 @@ struct TorrentTracker: Decodable, Identifiable {
     let tier: Int
 }
 
+struct TorrentStatsResponseArguments: Decodable {
+    let torrents: [TorrentStatsInfo]
+}
+
+struct TorrentStatsInfo: Decodable {
+    let id: Int
+    let name: String
+    let totalSize: Int
+    let downloadedEver: Int
+    let uploadedEver: Int
+    let corruptEver: Int
+    let addedDate: Int
+    let doneDate: Int
+    let activityDate: Int
+    let startDate: Int
+    let secondsDownloading: Int
+    let secondsSeeding: Int
+    let peersConnected: Int
+    let peersSendingToUs: Int
+    let peersGettingFromUs: Int
+    let seedRatioLimit: Double?
+    let seedRatioMode: Int?
+}
+
 struct TorrentActionArguments: Encodable {
     let ids: [Int]?
 }

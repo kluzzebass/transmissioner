@@ -10,6 +10,7 @@ final class AppState: ObservableObject {
     @Published var moveLocationTorrentIDs: [Int] = []
     @Published var fileSelectionTorrentID: Int?
     @Published var trackersTorrentID: Int?
+    @Published var statsTorrentID: Int?
 
     private let defaults = UserDefaults.standard
     private let selectedServiceKey = "selectedServiceID"

@@ -20,6 +20,7 @@ struct TorrentRowView: View {
     let onSetLocation: () -> Void
     let onFileSelection: () -> Void
     let onTrackers: () -> Void
+    let onStats: () -> Void
     @State private var optionPressed = false
     @State private var flagsMonitor: Any?
 
@@ -87,6 +88,7 @@ struct TorrentRowView: View {
             Button("Set Location…", action: onSetLocation)
             Button("File Selection…", action: onFileSelection)
             Button("Trackers…", action: onTrackers)
+            Button("Stats…", action: onStats)
             Divider()
             Button {
                 onSetPriorityHigh()

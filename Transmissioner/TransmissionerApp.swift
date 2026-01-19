@@ -59,5 +59,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Torrent Stats", id: "torrent-stats") {
+            TorrentStatsView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

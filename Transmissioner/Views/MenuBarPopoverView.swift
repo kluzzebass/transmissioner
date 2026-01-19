@@ -38,6 +38,11 @@ struct MenuBarPopoverView: View {
                         appState.trackersTorrentID = torrent.id
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "trackers")
+                    },
+                    onStats: { torrent in
+                        appState.statsTorrentID = torrent.id
+                        NSApp.activate(ignoringOtherApps: true)
+                        openWindow(id: "torrent-stats")
                     }
                 )
 
