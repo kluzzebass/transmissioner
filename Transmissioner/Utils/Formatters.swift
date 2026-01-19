@@ -24,6 +24,11 @@ enum Formatters {
         return "\(rateCount.string(fromByteCount: Int64(bytesPerSecond)))/s"
     }
 
+    static func sizeString(_ bytes: Int) -> String {
+        guard bytes > 0 else { return "0 B" }
+        return byteCount.string(fromByteCount: Int64(bytes))
+    }
+
     static func percentString(_ value: Double) -> String {
         let percent = max(0, min(1, value)) * 100
         return String(format: "%.0f%%", percent)

@@ -17,7 +17,7 @@
 - [x] Queue order (move top/bottom, move up/down).
 - [x] Bandwidth priority per torrent.
 - [x] Set location / move data.
-- [ ] File selection and priority.
+- [x] File selection and priority.
 - [ ] Session info display (version, default download dir).
 - [ ] Free space lookup for a path.
 

@@ -28,6 +28,11 @@ struct MenuBarPopoverView: View {
                         appState.moveLocationTorrentIDs = [torrent.id]
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "set-location")
+                    },
+                    onFileSelection: { torrent in
+                        appState.fileSelectionTorrentID = torrent.id
+                        NSApp.activate(ignoringOtherApps: true)
+                        openWindow(id: "file-selection")
                     }
                 )
 

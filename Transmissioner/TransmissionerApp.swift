@@ -35,5 +35,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("File Selection", id: "file-selection") {
+            FileSelectionView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

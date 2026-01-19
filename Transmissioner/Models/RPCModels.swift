@@ -25,6 +25,34 @@ struct TorrentGetResponseArguments: Decodable {
     let removed: [Int]?
 }
 
+struct TorrentGetFilesResponseArguments: Decodable {
+    let torrents: [TorrentFileInfo]
+}
+
+struct TorrentFileInfo: Decodable {
+    let id: Int
+    let name: String
+    let files: [TorrentFile]
+    let fileStats: [TorrentFileStat]
+}
+
+struct TorrentFile: Decodable {
+    let name: String
+    let length: Int
+    let bytesCompleted: Int
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case length
+        case bytesCompleted = "bytesCompleted"
+    }
+}
+
+struct TorrentFileStat: Decodable {
+    let wanted: Bool
+    let priority: Int
+}
+
 struct TorrentActionArguments: Encodable {
     let ids: [Int]?
 }
@@ -46,6 +74,24 @@ struct TorrentSetArguments: Encodable {
     enum CodingKeys: String, CodingKey {
         case ids
         case bandwidthPriority = "bandwidthPriority"
+    }
+}
+
+struct TorrentSetFilesArguments: Encodable {
+    let ids: [Int]
+    let filesWanted: [Int]
+    let filesUnwanted: [Int]
+    let priorityHigh: [Int]
+    let priorityNormal: [Int]
+    let priorityLow: [Int]
+
+    enum CodingKeys: String, CodingKey {
+        case ids
+        case filesWanted = "files-wanted"
+        case filesUnwanted = "files-unwanted"
+        case priorityHigh = "priority-high"
+        case priorityNormal = "priority-normal"
+        case priorityLow = "priority-low"
     }
 }
 
