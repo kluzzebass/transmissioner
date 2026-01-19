@@ -30,7 +30,7 @@
 - [x] Rename torrent.
 - [x] Labels / categories (if supported).
 - [x] Detailed error states and retry actions.
-- [ ] Encryption mode and peer limit settings.
+- [x] Encryption mode and peer limit settings.
 - [ ] Blocklist enable/update.
 - [ ] Port settings and port test.
 - [ ] Compact vs detailed view toggle.

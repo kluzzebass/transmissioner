@@ -121,6 +121,15 @@ struct MenuBarPopoverView: View {
             .help("Free Space")
             .disabled(selectedService == nil)
 
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "session-settings")
+            } label: {
+                Image(systemName: "slider.horizontal.3")
+            }
+            .help("Session Settings")
+            .disabled(selectedService == nil)
+
                     Spacer()
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")

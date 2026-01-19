@@ -276,6 +276,9 @@ struct SessionGetResponseArguments: Decodable {
     let speedLimitDownEnabled: Bool?
     let speedLimitUp: Int?
     let speedLimitUpEnabled: Bool?
+    let encryption: String?
+    let peerLimitGlobal: Int?
+    let peerLimitPerTorrent: Int?
 
     enum CodingKeys: String, CodingKey {
         case version
@@ -291,6 +294,9 @@ struct SessionGetResponseArguments: Decodable {
         case speedLimitDownEnabled = "speed-limit-down-enabled"
         case speedLimitUp = "speed-limit-up"
         case speedLimitUpEnabled = "speed-limit-up-enabled"
+        case encryption = "encryption"
+        case peerLimitGlobal = "peer-limit-global"
+        case peerLimitPerTorrent = "peer-limit-per-torrent"
     }
 }
 
@@ -321,6 +327,18 @@ struct SessionAltSpeedArguments: Encodable {
 
     enum CodingKeys: String, CodingKey {
         case altSpeedEnabled = "alt-speed-enabled"
+    }
+}
+
+struct SessionSetPeerLimitsArguments: Encodable {
+    let encryption: String
+    let peerLimitGlobal: Int
+    let peerLimitPerTorrent: Int
+
+    enum CodingKeys: String, CodingKey {
+        case encryption = "encryption"
+        case peerLimitGlobal = "peer-limit-global"
+        case peerLimitPerTorrent = "peer-limit-per-torrent"
     }
 }
 
