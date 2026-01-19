@@ -238,6 +238,18 @@ struct TorrentSetLabelsArguments: Encodable {
     let labels: [String]
 }
 
+struct TorrentErrorResponseArguments: Decodable {
+    let torrents: [TorrentErrorInfo]
+}
+
+struct TorrentErrorInfo: Decodable {
+    let id: Int
+    let name: String
+    let error: Int?
+    let errorString: String?
+    let activityDate: Int?
+}
+
 struct TorrentAddArguments: Encodable {
     let filename: String
     let downloadDir: String?

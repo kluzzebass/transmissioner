@@ -89,5 +89,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Error Details", id: "error-details") {
+            TorrentErrorDetailsView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

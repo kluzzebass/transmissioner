@@ -25,6 +25,7 @@ struct TorrentRowView: View {
     let onSeedingLimits: () -> Void
     let onRename: () -> Void
     let onLabels: () -> Void
+    let onErrorDetails: () -> Void
     @State private var optionPressed = false
     @State private var flagsMonitor: Any?
 
@@ -97,6 +98,8 @@ struct TorrentRowView: View {
             Button("Seeding Limits…", action: onSeedingLimits)
             Button("Rename…", action: onRename)
             Button("Labels…", action: onLabels)
+            Button("Error Details…", action: onErrorDetails)
+                .disabled(torrent.errorString?.isEmpty != false)
             Divider()
             Button {
                 onSetPriorityHigh()

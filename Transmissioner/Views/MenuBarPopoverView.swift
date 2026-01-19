@@ -63,6 +63,11 @@ struct MenuBarPopoverView: View {
                         appState.labelsTorrentID = torrent.id
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "labels")
+                    },
+                    onErrorDetails: { torrent in
+                        appState.errorDetailsTorrentID = torrent.id
+                        NSApp.activate(ignoringOtherApps: true)
+                        openWindow(id: "error-details")
                     }
                 )
 
