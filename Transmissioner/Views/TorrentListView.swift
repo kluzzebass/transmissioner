@@ -6,6 +6,7 @@ struct TorrentListView: View {
     let compact: Bool
     let onSetLocation: (TorrentInfo) -> Void
     let onFileSelection: (TorrentInfo) -> Void
+    let onTrackers: (TorrentInfo) -> Void
     @State private var pendingRemoval: PendingRemoval?
 
     var body: some View {
@@ -48,7 +49,8 @@ struct TorrentListView: View {
                             onSetPriorityNormal: { Task { await viewModel.setBandwidthPriority(ids: [torrent.id], priority: 0) } },
                             onSetPriorityHigh: { Task { await viewModel.setBandwidthPriority(ids: [torrent.id], priority: 1) } },
                             onSetLocation: { onSetLocation(torrent) },
-                            onFileSelection: { onFileSelection(torrent) }
+                            onFileSelection: { onFileSelection(torrent) },
+                            onTrackers: { onTrackers(torrent) }
                         )
                         .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
                         .id(torrent.id)

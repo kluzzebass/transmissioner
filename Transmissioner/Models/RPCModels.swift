@@ -53,6 +53,23 @@ struct TorrentFileStat: Decodable {
     let priority: Int
 }
 
+struct TorrentGetTrackersResponseArguments: Decodable {
+    let torrents: [TorrentTrackerInfo]
+}
+
+struct TorrentTrackerInfo: Decodable {
+    let id: Int
+    let name: String
+    let trackers: [TorrentTracker]
+}
+
+struct TorrentTracker: Decodable, Identifiable {
+    let id: Int
+    let announce: String
+    let scrape: String
+    let tier: Int
+}
+
 struct TorrentActionArguments: Encodable {
     let ids: [Int]?
 }
@@ -92,6 +109,18 @@ struct TorrentSetFilesArguments: Encodable {
         case priorityHigh = "priority-high"
         case priorityNormal = "priority-normal"
         case priorityLow = "priority-low"
+    }
+}
+
+struct TorrentSetTrackersArguments: Encodable {
+    let ids: [Int]
+    let trackerAdd: [String]?
+    let trackerRemove: [Int]?
+
+    enum CodingKeys: String, CodingKey {
+        case ids
+        case trackerAdd = "trackerAdd"
+        case trackerRemove = "trackerRemove"
     }
 }
 

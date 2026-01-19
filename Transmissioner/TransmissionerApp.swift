@@ -53,5 +53,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Trackers", id: "trackers") {
+            TrackersView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

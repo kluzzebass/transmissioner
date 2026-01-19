@@ -23,7 +23,7 @@
 
 ## Medium Priority
 
-- [ ] Trackers list, add/remove trackers.
+- [x] Trackers list, add/remove trackers.
 - [ ] Per-torrent stats and history.
 - [ ] Peers list and per-peer stats.
 - [ ] Set ratio limits and seeding options.
