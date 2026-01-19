@@ -282,6 +282,9 @@ struct SessionGetResponseArguments: Decodable {
     let blocklistEnabled: Bool?
     let blocklistURL: String?
     let blocklistSize: Int?
+    let peerPort: Int?
+    let peerPortRandomOnStart: Bool?
+    let portIsOpen: Bool?
 
     enum CodingKeys: String, CodingKey {
         case version
@@ -303,6 +306,9 @@ struct SessionGetResponseArguments: Decodable {
         case blocklistEnabled = "blocklist-enabled"
         case blocklistURL = "blocklist-url"
         case blocklistSize = "blocklist-size"
+        case peerPort = "peer-port"
+        case peerPortRandomOnStart = "peer-port-random-on-start"
+        case portIsOpen = "port-is-open"
     }
 }
 
@@ -360,6 +366,24 @@ struct SessionSetBlocklistArguments: Encodable {
 
 struct BlocklistUpdateResponseArguments: Decodable {
     let blocklistSize: Int
+}
+
+struct SessionSetPortArguments: Encodable {
+    let peerPort: Int
+    let peerPortRandomOnStart: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case peerPort = "peer-port"
+        case peerPortRandomOnStart = "peer-port-random-on-start"
+    }
+}
+
+struct PortTestResponseArguments: Decodable {
+    let portIsOpen: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case portIsOpen = "port-is-open"
+    }
 }
 
 struct FreeSpaceArguments: Encodable {

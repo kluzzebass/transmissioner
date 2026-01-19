@@ -107,5 +107,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Port Settings", id: "port-settings") {
+            PortSettingsView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

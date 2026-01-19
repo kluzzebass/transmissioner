@@ -139,6 +139,15 @@ struct MenuBarPopoverView: View {
             .help("Blocklist")
             .disabled(selectedService == nil)
 
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "port-settings")
+            } label: {
+                Image(systemName: "network")
+            }
+            .help("Port Settings")
+            .disabled(selectedService == nil)
+
                     Spacer()
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")
