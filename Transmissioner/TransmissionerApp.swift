@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 @main
@@ -6,6 +7,7 @@ struct TransmissionerApp: App {
     @StateObject private var appState = AppState()
     @StateObject private var preferences = PreferencesStore()
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {
         MenuBarExtra("Transmissioner", image: "MenuBarIcon") {
@@ -15,6 +17,30 @@ struct TransmissionerApp: App {
                 .environmentObject(preferences)
         }
         .menuBarExtraStyle(.window)
+        .commands {
+            CommandMenu("Transmissioner") {
+                Button("Open Settings") {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "settings")
+                }
+                .keyboardShortcut(",", modifiers: .command)
+
+                Button("Add Torrent") {
+                    NotificationCenter.default.post(name: .showAddTorrent, object: nil)
+                }
+                .keyboardShortcut("n", modifiers: .command)
+
+                Button("Refresh Torrents") {
+                    NotificationCenter.default.post(name: .refreshTorrents, object: nil)
+                }
+                .keyboardShortcut("r", modifiers: .command)
+
+                Button("Toggle Compact View") {
+                    NotificationCenter.default.post(name: .toggleCompactView, object: nil)
+                }
+                .keyboardShortcut("c", modifiers: [.command, .shift])
+            }
+        }
 
         Window("Settings", id: "settings") {
             SettingsView()

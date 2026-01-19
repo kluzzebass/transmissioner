@@ -194,6 +194,15 @@ struct MenuBarPopoverView: View {
             guard Date() >= suppressRefreshUntil else { return }
             Task { await viewModel.refresh() }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .showAddTorrent)) { _ in
+            showingAddTorrent = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .refreshTorrents)) { _ in
+            Task { await viewModel.refresh() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .toggleCompactView)) { _ in
+            preferences.compactView.toggle()
+        }
         .onReceive(NotificationCenter.default.publisher(for: NSMenu.didBeginTrackingNotification)) { _ in
             isMenuTracking = true
         }

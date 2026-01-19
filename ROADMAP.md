@@ -34,7 +34,7 @@
 - [x] Blocklist enable/update.
 - [x] Port settings and port test.
 - [x] Compact vs detailed view toggle.
-- [ ] Keyboard shortcuts for common actions.
+- [x] Keyboard shortcuts for common actions.
 - [ ] Onboarding / connection diagnostics.
 - [ ] Offline / reconnect handling with clear state.
 
