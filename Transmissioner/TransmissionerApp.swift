@@ -101,5 +101,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Blocklist", id: "blocklist") {
+            BlocklistView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

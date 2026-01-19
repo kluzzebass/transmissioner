@@ -130,6 +130,15 @@ struct MenuBarPopoverView: View {
             .help("Session Settings")
             .disabled(selectedService == nil)
 
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "blocklist")
+            } label: {
+                Image(systemName: "shield")
+            }
+            .help("Blocklist")
+            .disabled(selectedService == nil)
+
                     Spacer()
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")

@@ -279,6 +279,9 @@ struct SessionGetResponseArguments: Decodable {
     let encryption: String?
     let peerLimitGlobal: Int?
     let peerLimitPerTorrent: Int?
+    let blocklistEnabled: Bool?
+    let blocklistURL: String?
+    let blocklistSize: Int?
 
     enum CodingKeys: String, CodingKey {
         case version
@@ -297,6 +300,9 @@ struct SessionGetResponseArguments: Decodable {
         case encryption = "encryption"
         case peerLimitGlobal = "peer-limit-global"
         case peerLimitPerTorrent = "peer-limit-per-torrent"
+        case blocklistEnabled = "blocklist-enabled"
+        case blocklistURL = "blocklist-url"
+        case blocklistSize = "blocklist-size"
     }
 }
 
@@ -340,6 +346,20 @@ struct SessionSetPeerLimitsArguments: Encodable {
         case peerLimitGlobal = "peer-limit-global"
         case peerLimitPerTorrent = "peer-limit-per-torrent"
     }
+}
+
+struct SessionSetBlocklistArguments: Encodable {
+    let blocklistEnabled: Bool
+    let blocklistURL: String
+
+    enum CodingKeys: String, CodingKey {
+        case blocklistEnabled = "blocklist-enabled"
+        case blocklistURL = "blocklist-url"
+    }
+}
+
+struct BlocklistUpdateResponseArguments: Decodable {
+    let blocklistSize: Int
 }
 
 struct FreeSpaceArguments: Encodable {

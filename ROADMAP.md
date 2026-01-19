@@ -31,7 +31,7 @@
 - [x] Labels / categories (if supported).
 - [x] Detailed error states and retry actions.
 - [x] Encryption mode and peer limit settings.
-- [ ] Blocklist enable/update.
+- [x] Blocklist enable/update.
 - [ ] Port settings and port test.
 - [ ] Compact vs detailed view toggle.
 - [ ] Keyboard shortcuts for common actions.
