@@ -28,7 +28,7 @@
 - [x] Peers list and per-peer stats.
 - [x] Set ratio limits and seeding options.
 - [x] Rename torrent.
-- [ ] Labels / categories (if supported).
+- [x] Labels / categories (if supported).
 - [ ] Detailed error states and retry actions.
 - [ ] Encryption mode and peer limit settings.
 - [ ] Blocklist enable/update.

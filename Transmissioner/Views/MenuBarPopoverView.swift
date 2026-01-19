@@ -58,6 +58,11 @@ struct MenuBarPopoverView: View {
                         appState.renameTorrentID = torrent.id
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "rename-torrent")
+                    },
+                    onLabels: { torrent in
+                        appState.labelsTorrentID = torrent.id
+                        NSApp.activate(ignoringOtherApps: true)
+                        openWindow(id: "labels")
                     }
                 )
 

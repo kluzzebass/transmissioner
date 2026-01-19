@@ -83,5 +83,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Labels", id: "labels") {
+            LabelsView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

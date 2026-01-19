@@ -14,6 +14,7 @@ final class AppState: ObservableObject {
     @Published var peersTorrentID: Int?
     @Published var seedingLimitsTorrentID: Int?
     @Published var renameTorrentID: Int?
+    @Published var labelsTorrentID: Int?
 
     private let defaults = UserDefaults.standard
     private let selectedServiceKey = "selectedServiceID"

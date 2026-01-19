@@ -223,6 +223,21 @@ struct TorrentRenameResponseArguments: Decodable {
     let path: String?
 }
 
+struct TorrentLabelsResponseArguments: Decodable {
+    let torrents: [TorrentLabelsInfo]
+}
+
+struct TorrentLabelsInfo: Decodable {
+    let id: Int
+    let name: String
+    let labels: [String]
+}
+
+struct TorrentSetLabelsArguments: Encodable {
+    let ids: [Int]
+    let labels: [String]
+}
+
 struct TorrentAddArguments: Encodable {
     let filename: String
     let downloadDir: String?

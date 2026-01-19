@@ -11,6 +11,7 @@ struct TorrentListView: View {
     let onPeers: (TorrentInfo) -> Void
     let onSeedingLimits: (TorrentInfo) -> Void
     let onRename: (TorrentInfo) -> Void
+    let onLabels: (TorrentInfo) -> Void
     @State private var pendingRemoval: PendingRemoval?
 
     var body: some View {
@@ -58,7 +59,8 @@ struct TorrentListView: View {
                             onStats: { onStats(torrent) },
                             onPeers: { onPeers(torrent) },
                             onSeedingLimits: { onSeedingLimits(torrent) },
-                            onRename: { onRename(torrent) }
+                            onRename: { onRename(torrent) },
+                            onLabels: { onLabels(torrent) }
                         )
                         .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
                         .id(torrent.id)
