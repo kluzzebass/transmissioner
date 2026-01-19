@@ -53,6 +53,11 @@ struct MenuBarPopoverView: View {
                         appState.seedingLimitsTorrentID = torrent.id
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "seeding-limits")
+                    },
+                    onRename: { torrent in
+                        appState.renameTorrentID = torrent.id
+                        NSApp.activate(ignoringOtherApps: true)
+                        openWindow(id: "rename-torrent")
                     }
                 )
 

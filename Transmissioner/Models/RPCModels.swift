@@ -211,6 +211,18 @@ struct TorrentSetSeedLimitsArguments: Encodable {
     }
 }
 
+struct TorrentRenameArguments: Encodable {
+    let ids: [Int]
+    let path: String
+    let name: String
+}
+
+struct TorrentRenameResponseArguments: Decodable {
+    let id: Int
+    let name: String?
+    let path: String?
+}
+
 struct TorrentAddArguments: Encodable {
     let filename: String
     let downloadDir: String?

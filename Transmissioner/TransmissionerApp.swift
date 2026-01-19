@@ -77,5 +77,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Rename Torrent", id: "rename-torrent") {
+            RenameTorrentView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

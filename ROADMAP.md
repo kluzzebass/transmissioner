@@ -27,7 +27,7 @@
 - [x] Per-torrent stats and history.
 - [x] Peers list and per-peer stats.
 - [x] Set ratio limits and seeding options.
-- [ ] Rename torrent.
+- [x] Rename torrent.
 - [ ] Labels / categories (if supported).
 - [ ] Detailed error states and retry actions.
 - [ ] Encryption mode and peer limit settings.
