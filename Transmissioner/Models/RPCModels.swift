@@ -180,3 +180,17 @@ struct SessionAltSpeedArguments: Encodable {
         case altSpeedEnabled = "alt-speed-enabled"
     }
 }
+
+struct FreeSpaceArguments: Encodable {
+    let path: String
+}
+
+struct FreeSpaceResponseArguments: Decodable {
+    let path: String
+    let sizeBytes: Int
+
+    enum CodingKeys: String, CodingKey {
+        case path
+        case sizeBytes = "size-bytes"
+    }
+}

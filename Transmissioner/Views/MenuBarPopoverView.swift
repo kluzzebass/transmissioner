@@ -77,6 +77,15 @@ struct MenuBarPopoverView: View {
             .help("Session Info")
             .disabled(selectedService == nil)
 
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "free-space")
+            } label: {
+                Image(systemName: "externaldrive")
+            }
+            .help("Free Space")
+            .disabled(selectedService == nil)
+
                     Spacer()
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")

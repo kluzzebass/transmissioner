@@ -47,5 +47,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Free Space", id: "free-space") {
+            FreeSpaceView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

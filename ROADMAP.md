@@ -19,7 +19,7 @@
 - [x] Set location / move data.
 - [x] File selection and priority.
 - [x] Session info display (version, default download dir).
-- [ ] Free space lookup for a path.
+- [x] Free space lookup for a path.
 
 ## Medium Priority
 
