@@ -33,7 +33,7 @@
 - [x] Encryption mode and peer limit settings.
 - [x] Blocklist enable/update.
 - [x] Port settings and port test.
-- [ ] Compact vs detailed view toggle.
+- [x] Compact vs detailed view toggle.
 - [ ] Keyboard shortcuts for common actions.
 - [ ] Onboarding / connection diagnostics.
 - [ ] Offline / reconnect handling with clear state.

@@ -5,6 +5,7 @@ struct TorrentRowView: View {
     let torrent: TorrentInfo
     let globalSeedRatioLimit: Double?
     let globalSeedRatioLimited: Bool
+    let compact: Bool
     let onToggle: () -> Void
     let onRequestRemove: () -> Void
     let onRequestRemoveWithData: () -> Void
@@ -30,7 +31,7 @@ struct TorrentRowView: View {
     @State private var flagsMonitor: Any?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: compact ? 4 : 6) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
                 Text(torrent.name)
                     .font(.headline)
@@ -64,7 +65,7 @@ struct TorrentRowView: View {
                     .font(.caption)
                     .foregroundColor(.red)
                     .lineLimit(2)
-            } else {
+            } else if !compact {
                 HStack(spacing: 12) {
                     Text(Formatters.percentString(torrent.percentDone))
                         .font(.caption)

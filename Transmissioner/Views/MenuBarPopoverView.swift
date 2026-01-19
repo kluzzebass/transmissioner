@@ -18,7 +18,7 @@ struct MenuBarPopoverView: View {
             header
 
             if selectedService != nil {
-                FilterBarView(filterState: filterState)
+                FilterBarView(filterState: filterState, compactView: $preferences.compactView)
 
                 TorrentListView(
                     viewModel: viewModel,
@@ -262,11 +262,13 @@ struct MenuBarPopoverView: View {
 
     private struct FilterBarView: View, Equatable {
         @ObservedObject var filterState: FilterState
+        @Binding var compactView: Bool
 
         static func == (lhs: FilterBarView, rhs: FilterBarView) -> Bool {
             lhs.filterState.searchText == rhs.filterState.searchText
                 && lhs.filterState.statusFilter == rhs.filterState.statusFilter
                 && lhs.filterState.sortOrder == rhs.filterState.sortOrder
+                && lhs.compactView == rhs.compactView
         }
 
         var body: some View {
@@ -293,6 +295,13 @@ struct MenuBarPopoverView: View {
                 } label: {
                     Label(filterState.sortOrder.label, systemImage: "arrow.up.arrow.down")
                 }
+
+                Button {
+                    compactView.toggle()
+                } label: {
+                    Image(systemName: compactView ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
+                }
+                .help(compactView ? "Switch to Detailed View" : "Switch to Compact View")
             }
         }
     }
