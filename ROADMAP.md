@@ -35,7 +35,7 @@
 - [x] Port settings and port test.
 - [x] Compact vs detailed view toggle.
 - [x] Keyboard shortcuts for common actions.
-- [ ] Onboarding / connection diagnostics.
+- [x] Onboarding / connection diagnostics.
 - [ ] Offline / reconnect handling with clear state.
 
 ## Later / Distribution

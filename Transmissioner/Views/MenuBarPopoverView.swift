@@ -148,6 +148,15 @@ struct MenuBarPopoverView: View {
             .help("Port Settings")
             .disabled(selectedService == nil)
 
+            Button {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "connection-diagnostics")
+            } label: {
+                Image(systemName: "stethoscope")
+            }
+            .help("Connection Diagnostics")
+            .disabled(selectedService == nil)
+
                     Spacer()
                         Button(action: openSettings) {
                             Image(systemName: "gearshape")

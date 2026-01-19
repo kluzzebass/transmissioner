@@ -139,5 +139,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Connection Diagnostics", id: "connection-diagnostics") {
+            ConnectionDiagnosticsView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }
