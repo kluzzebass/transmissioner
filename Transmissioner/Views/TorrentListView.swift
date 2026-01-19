@@ -9,6 +9,7 @@ struct TorrentListView: View {
     let onTrackers: (TorrentInfo) -> Void
     let onStats: (TorrentInfo) -> Void
     let onPeers: (TorrentInfo) -> Void
+    let onSeedingLimits: (TorrentInfo) -> Void
     @State private var pendingRemoval: PendingRemoval?
 
     var body: some View {
@@ -54,7 +55,8 @@ struct TorrentListView: View {
                             onFileSelection: { onFileSelection(torrent) },
                             onTrackers: { onTrackers(torrent) },
                             onStats: { onStats(torrent) },
-                            onPeers: { onPeers(torrent) }
+                            onPeers: { onPeers(torrent) },
+                            onSeedingLimits: { onSeedingLimits(torrent) }
                         )
                         .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
                         .id(torrent.id)

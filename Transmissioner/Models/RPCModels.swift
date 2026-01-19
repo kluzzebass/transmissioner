@@ -116,6 +116,19 @@ struct TorrentPeer: Decodable, Identifiable {
     var id: String { address }
 }
 
+struct TorrentSeedLimitsResponseArguments: Decodable {
+    let torrents: [TorrentSeedLimitsInfo]
+}
+
+struct TorrentSeedLimitsInfo: Decodable {
+    let id: Int
+    let name: String
+    let seedRatioLimit: Double?
+    let seedRatioMode: Int
+    let seedIdleLimit: Int?
+    let seedIdleMode: Int
+}
+
 struct TorrentActionArguments: Encodable {
     let ids: [Int]?
 }
@@ -179,6 +192,22 @@ struct TorrentSetLocationArguments: Encodable {
         case ids
         case location
         case move
+    }
+}
+
+struct TorrentSetSeedLimitsArguments: Encodable {
+    let ids: [Int]
+    let seedRatioLimit: Double?
+    let seedRatioMode: Int
+    let seedIdleLimit: Int?
+    let seedIdleMode: Int
+
+    enum CodingKeys: String, CodingKey {
+        case ids
+        case seedRatioLimit = "seedRatioLimit"
+        case seedRatioMode = "seedRatioMode"
+        case seedIdleLimit = "seedIdleLimit"
+        case seedIdleMode = "seedIdleMode"
     }
 }
 

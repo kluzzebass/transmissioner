@@ -71,5 +71,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Seeding Limits", id: "seeding-limits") {
+            SeedingLimitsView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

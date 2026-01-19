@@ -48,6 +48,11 @@ struct MenuBarPopoverView: View {
                         appState.peersTorrentID = torrent.id
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "peers")
+                    },
+                    onSeedingLimits: { torrent in
+                        appState.seedingLimitsTorrentID = torrent.id
+                        NSApp.activate(ignoringOtherApps: true)
+                        openWindow(id: "seeding-limits")
                     }
                 )
 
