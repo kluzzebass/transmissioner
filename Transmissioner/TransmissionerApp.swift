@@ -65,5 +65,11 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
         }
 
+        Window("Peers", id: "peers") {
+            PeersView()
+                .environmentObject(serviceStore)
+                .environmentObject(appState)
+        }
+
     }
 }

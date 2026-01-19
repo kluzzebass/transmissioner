@@ -25,7 +25,7 @@
 
 - [x] Trackers list, add/remove trackers.
 - [x] Per-torrent stats and history.
-- [ ] Peers list and per-peer stats.
+- [x] Peers list and per-peer stats.
 - [ ] Set ratio limits and seeding options.
 - [ ] Rename torrent.
 - [ ] Labels / categories (if supported).

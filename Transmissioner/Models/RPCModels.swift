@@ -94,6 +94,28 @@ struct TorrentStatsInfo: Decodable {
     let seedRatioMode: Int?
 }
 
+struct TorrentPeersResponseArguments: Decodable {
+    let torrents: [TorrentPeersInfo]
+}
+
+struct TorrentPeersInfo: Decodable {
+    let id: Int
+    let name: String
+    let peers: [TorrentPeer]
+    let peersFrom: [String: Int]
+}
+
+struct TorrentPeer: Decodable, Identifiable {
+    let address: String
+    let clientName: String
+    let progress: Double
+    let rateToClient: Int
+    let rateToPeer: Int
+    let flagStr: String
+
+    var id: String { address }
+}
+
 struct TorrentActionArguments: Encodable {
     let ids: [Int]?
 }
