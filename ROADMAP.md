@@ -43,5 +43,5 @@
 - [x] Keychain storage for credentials.
 - [x] TLS/HTTPS configuration hints and ATS exceptions UI.
 - [x] Run at startup registration.
-- [ ] Developer ID signing + notarization pipeline.
-- [ ] Homebrew cask packaging guide.
+- [x] Developer ID signing + notarization pipeline.
+- [x] Homebrew cask packaging guide.

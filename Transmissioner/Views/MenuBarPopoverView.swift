@@ -7,190 +7,218 @@ struct MenuBarPopoverView: View {
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.openWindow) private var openWindow
-    @StateObject private var viewModel = TorrentListViewModel()
-    @State private var showingAddTorrent = false
+    @StateObject private var viewModelStore = ServiceViewModelStore()
+    @State private var addTorrentService: ServiceConfig?
     @State private var suppressRefreshUntil = Date.distantPast
     @State private var isMenuTracking = false
     @StateObject private var filterState = FilterState()
+    @State private var pendingRemoval: PendingRemoval?
 
-    var body: some View {
-        VStack(spacing: 12) {
-            header
-
-            if selectedService != nil {
-                FilterBarView(filterState: filterState, compactView: $preferences.compactView)
-
-                TorrentListView(
-                    viewModel: viewModel,
-                    torrents: filteredTorrents,
-                    compact: preferences.compactView,
-                    onSetLocation: { torrent in
-                        appState.moveLocationTorrentIDs = [torrent.id]
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "set-location")
-                    },
-                    onFileSelection: { torrent in
-                        appState.fileSelectionTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "file-selection")
-                    },
-                    onTrackers: { torrent in
-                        appState.trackersTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "trackers")
-                    },
-                    onStats: { torrent in
-                        appState.statsTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "torrent-stats")
-                    },
-                    onPeers: { torrent in
-                        appState.peersTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "peers")
-                    },
-                    onSeedingLimits: { torrent in
-                        appState.seedingLimitsTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "seeding-limits")
-                    },
-                    onRename: { torrent in
-                        appState.renameTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "rename-torrent")
-                    },
-                    onLabels: { torrent in
-                        appState.labelsTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "labels")
-                    },
-                    onErrorDetails: { torrent in
-                        appState.errorDetailsTorrentID = torrent.id
-                        NSApp.activate(ignoringOtherApps: true)
-                        openWindow(id: "error-details")
-                    },
-                    onRetryConnection: {
-                        Task { await viewModel.refresh() }
+    var body: AnyView {
+        let padded = AnyView(mainContent.padding(12))
+        let framed = AnyView(padded.frame(width: 600, height: 800, alignment: .top))
+        let overlaid = AnyView(framed.overlay { overlayContent })
+        let observed = AnyView(
+            overlaid
+                .onAppear(perform: configureServices)
+                .onChange(of: appState.selectedServiceID) { _, _ in configureServices() }
+                .onChange(of: preferences.allowInsecureTLS) { _, _ in
+                    configureServices()
+                }
+                .onChange(of: serviceStore.services) { _, _ in
+                    configureServices()
+                }
+                .onReceive(refreshTimer) { _ in
+                    guard preferences.autoRefresh, !serviceStore.services.isEmpty else { return }
+                    guard Date() >= suppressRefreshUntil else { return }
+                    Task { await viewModelStore.refreshAll() }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .refreshTorrents)) { _ in
+                    Task { await viewModelStore.refreshAll() }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .showAddTorrent)) { _ in
+                    if let service = selectedService {
+                        addTorrentService = service
                     }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .toggleCompactView)) { _ in
+                    preferences.compactView.toggle()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSMenu.didBeginTrackingNotification)) { _ in
+                    isMenuTracking = true
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSMenu.didEndTrackingNotification)) { _ in
+                    isMenuTracking = false
+                }
+        )
+        return observed
+    }
+
+    private var mainContent: AnyView {
+        AnyView(
+            VStack(spacing: 12) {
+                header
+                if serviceStore.services.isEmpty {
+                    emptyState
+                } else {
+                    servicesContent
+                }
+            }
+        )
+    }
+
+    private var servicesContent: AnyView {
+        AnyView(
+            VStack(spacing: 12) {
+                FilterBarView(filterState: filterState, compactView: $preferences.compactView)
+                ServicesListView(
+                    services: serviceStore.services,
+                    allowInsecureTLS: preferences.allowInsecureTLS,
+                    viewModelStore: viewModelStore,
+                    filterState: filterState,
+                    addTorrentService: $addTorrentService,
+                    pendingRemoval: $pendingRemoval
                 )
-
-                HStack(spacing: 8) {
-                        Button {
-                        Task { await viewModel.start() }
-                        } label: {
-                            Image(systemName: "play.fill")
-                        }
-                        .help("Start All")
-
-                        Button {
-                        Task { await viewModel.stop() }
-                        } label: {
-                            Image(systemName: "pause.fill")
-                        }
-                        .help("Stop All")
-
-            Button {
-                Task { await viewModel.setAltSpeed(enabled: !viewModel.altSpeedEnabled) }
-            } label: {
-                Image(systemName: viewModel.altSpeedEnabled ? "tortoise.fill" : "tortoise")
-                    .foregroundStyle(viewModel.altSpeedEnabled ? Color.green : Color.primary)
+                controlsBar
             }
-            .help("Temporary Speed Limit")
+        )
+    }
 
-            serverSettingsMenu
-
-            Spacer()
-            infoMenu
+    private var controlsBar: AnyView {
+        AnyView(
+            HStack(spacing: 8) {
+                Button {
+                    Task { await viewModelStore.startAll() }
+                } label: {
+                    Image(systemName: "play.fill")
                 }
-                .buttonStyle(.bordered)
-            } else {
-                emptyState
-            }
-        }
-        .padding(12)
-        .frame(width: 600, height: 800)
-        .overlay {
-            if showingAddTorrent {
-                ZStack {
-                    Color.black.opacity(0.25)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            showingAddTorrent = false
-                        }
+                .help("Start All")
 
-                    AddTorrentView(
-                        onAdd: { link, dir in
-                            showingAddTorrent = false
-                            Task { await viewModel.addTorrent(magnetLink: link, downloadDir: dir) }
-                        },
-                        onCancel: { showingAddTorrent = false }
-                    )
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                    )
-                    .shadow(radius: 10)
+                Button {
+                    Task { await viewModelStore.stopAll() }
+                } label: {
+                    Image(systemName: "pause.fill")
+                }
+                .help("Stop All")
+
+                Button {
+                    Task { await viewModelStore.setAltSpeed(enabled: !viewModelStore.allAltSpeedEnabled) }
+                } label: {
+                    Image(systemName: viewModelStore.anyAltSpeedEnabled ? "tortoise.fill" : "tortoise")
+                        .foregroundStyle(viewModelStore.anyAltSpeedEnabled ? Color.green : Color.primary)
+                }
+                .help("Temporary Speed Limit")
+
+                serverSettingsMenu
+
+                Spacer()
+                infoMenu
+            }
+            .buttonStyle(.bordered)
+        )
+    }
+
+    private var overlayContent: AnyView {
+        AnyView(
+            Group {
+                if let pendingRemoval {
+                    ZStack {
+                        Color.black.opacity(0.25)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                self.pendingRemoval = nil
+                            }
+
+                        VStack(spacing: 12) {
+                            Text(pendingRemoval.deleteData ? "Remove & Delete Data" : "Remove Torrent")
+                                .font(.headline)
+                            Text(pendingRemoval.deleteData
+                                 ? "This will remove “\(pendingRemoval.torrent.name)” and delete its local data."
+                                 : "This will remove “\(pendingRemoval.torrent.name)” from Transmission.")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                                .multilineTextAlignment(.center)
+
+                            HStack {
+                                Button("Cancel") {
+                                    self.pendingRemoval = nil
+                                }
+                                Spacer()
+                                Button(pendingRemoval.deleteData ? "Delete Data" : "Remove") {
+                                    let service = pendingRemoval.service
+                                    let torrentID = pendingRemoval.torrent.id
+                                    let deleteData = pendingRemoval.deleteData
+                                    self.pendingRemoval = nil
+                                    Task {
+                                        let viewModel = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
+                                        await viewModel.remove(ids: [torrentID], deleteData: deleteData)
+                                    }
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(pendingRemoval.deleteData ? .red : .accentColor)
+                            }
+                        }
+                        .padding(16)
+                        .frame(maxWidth: .infinity)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(radius: 10)
+                        .padding(20)
+                    }
+                } else if let addTorrentService {
+                    ZStack {
+                        Color.black.opacity(0.25)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                self.addTorrentService = nil
+                            }
+
+                        AddTorrentView(
+                            onAdd: { link, dir in
+                                let service = addTorrentService
+                                self.addTorrentService = nil
+                                Task {
+                                    let viewModel = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
+                                    await viewModel.addTorrent(magnetLink: link, downloadDir: dir)
+                                }
+                            },
+                            onCancel: { self.addTorrentService = nil }
+                        )
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
+                        )
+                        .shadow(radius: 10)
+                    }
                 }
             }
-        }
-        .onAppear(perform: configureViewModel)
-        .onChange(of: appState.selectedServiceID) { _, _ in configureViewModel() }
-        .onChange(of: preferences.allowInsecureTLS) { _, _ in
-            configureViewModel()
-        }
-        .onReceive(refreshTimer) { _ in
-            guard preferences.autoRefresh, selectedService != nil else { return }
-            guard Date() >= suppressRefreshUntil else { return }
-            Task { await viewModel.refresh() }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .showAddTorrent)) { _ in
-            showingAddTorrent = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .refreshTorrents)) { _ in
-            Task { await viewModel.refresh() }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .toggleCompactView)) { _ in
-            preferences.compactView.toggle()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSMenu.didBeginTrackingNotification)) { _ in
-            isMenuTracking = true
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSMenu.didEndTrackingNotification)) { _ in
-            isMenuTracking = false
-        }
+        )
     }
 
     private var header: some View {
         HStack(spacing: 8) {
-            Menu {
-                ForEach(serviceStore.services) { service in
-                    Button(service.name) {
-                        appState.selectedServiceID = service.id
-                    }
-                }
-                if !serviceStore.services.isEmpty {
-                    Divider()
-                }
-                Button("Manage Services", action: openSettings)
-            } label: {
-                Label(selectedService?.name ?? "No Service", systemImage: "antenna.radiowaves.left.and.right")
+            Label("Services", systemImage: "antenna.radiowaves.left.and.right")
+                .foregroundColor(.secondary)
+            Button("Manage") {
+                openSettings(tab: "services")
             }
+            .buttonStyle(.borderless)
+            .controlSize(.small)
 
             Spacer()
 
             headerIconButton(systemName: "arrow.clockwise", help: "Refresh") {
-                Task { await viewModel.refresh() }
+                Task { await viewModelStore.refreshAll() }
             }
-
-            headerIconButton(systemName: "plus", help: "Add Torrent") {
-                showingAddTorrent = true
-            }
-            .disabled(selectedService == nil)
 
             headerIconButton(systemName: "gearshape", help: "Settings") {
-                openSettings()
+                openSettings(tab: "preferences")
             }
 
             headerIconButton(systemName: "power", help: "Quit") {
@@ -206,7 +234,9 @@ struct MenuBarPopoverView: View {
             Text("Add your first service in Settings.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
-            Button("Open Settings", action: openSettings)
+            Button("Open Settings") {
+                openSettings(tab: "services")
+            }
         }
         .frame(maxWidth: .infinity, minHeight: 200)
     }
@@ -304,36 +334,18 @@ struct MenuBarPopoverView: View {
         }
     }
 
-    private var filteredTorrents: [TorrentInfo] {
-        var result = viewModel.torrents
-
-        if !filterState.searchText.isEmpty {
-            result = result.filter { $0.name.localizedCaseInsensitiveContains(filterState.searchText) }
-        }
-
-        result = result.filter { filterState.statusFilter.matches($0) }
-
-        switch filterState.sortOrder {
-        case .name:
-            return result.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-        case .progress:
-            return result.sorted { $0.percentDone > $1.percentDone }
-        case .eta:
-            return result.sorted { $0.eta < $1.eta }
-        case .activity:
-            return result.sorted { $0.isActive && !$1.isActive }
-        }
-    }
-
-    private func configureViewModel() {
+    private func configureServices() {
         if appState.selectedServiceID == nil, let first = serviceStore.services.first {
             appState.selectedServiceID = first.id
         }
-        viewModel.allowInsecureTLS = preferences.allowInsecureTLS
-        viewModel.configure(with: selectedService)
+        viewModelStore.removeMissingServices(serviceStore.services)
+        for service in serviceStore.services {
+            _ = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
+        }
     }
 
-    private func openSettings() {
+    private func openSettings(tab: String) {
+        appState.settingsTab = tab
         NSApp.activate(ignoringOtherApps: true)
         openWindow(id: "settings")
     }
@@ -356,69 +368,5 @@ struct MenuBarPopoverView: View {
         .help(help)
     }
 
-    private enum StatusFilter: String, CaseIterable, Identifiable {
-        case all
-        case downloading
-        case seeding
-        case completed
-        case stopped
-        case error
-
-        var id: String { rawValue }
-
-        var label: String {
-            switch self {
-            case .all: return "All"
-            case .downloading: return "Downloading"
-            case .seeding: return "Seeding"
-            case .completed: return "Completed"
-            case .stopped: return "Stopped"
-            case .error: return "Error"
-            }
-        }
-
-        func matches(_ torrent: TorrentInfo) -> Bool {
-            switch self {
-            case .all:
-                return true
-            case .error:
-                return (torrent.errorString?.isEmpty == false)
-            case .downloading:
-                return torrent.status == TransmissionStatus.downloading.rawValue
-            case .seeding:
-                return torrent.status == TransmissionStatus.seeding.rawValue
-            case .completed:
-                return torrent.isFinished
-            case .stopped:
-                return torrent.status == TransmissionStatus.stopped.rawValue
-            }
-        }
-    }
-
-    private enum SortOrder: String, CaseIterable, Identifiable {
-        case name
-        case progress
-        case eta
-        case activity
-
-        var id: String { rawValue }
-
-        var label: String {
-            switch self {
-            case .name: return "Name"
-            case .progress: return "Progress"
-            case .eta: return "ETA"
-            case .activity: return "Active"
-            }
-        }
-    }
-
-    private final class FilterState: ObservableObject {
-        @Published var searchText = ""
-        @Published var statusFilter: StatusFilter = .all
-        @Published var sortOrder: SortOrder = .name
-    }
-
-    
 }
 

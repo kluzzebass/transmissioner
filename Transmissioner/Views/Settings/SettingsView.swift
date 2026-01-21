@@ -2,9 +2,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
+    @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
 
+    @State private var selectedTab = "preferences"
     @State private var draftAutoRefresh = true
     @State private var draftAutoRefreshInterval = 20.0
     @State private var draftAllowInsecureTLS = false
@@ -14,7 +16,7 @@ struct SettingsView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            TabView {
+            TabView(selection: $selectedTab) {
                 PreferencesView(
                     autoRefresh: $draftAutoRefresh,
                     autoRefreshInterval: $draftAutoRefreshInterval,
@@ -22,9 +24,11 @@ struct SettingsView: View {
                     runAtLogin: $draftRunAtLogin
                 )
                     .tabItem { Label("Preferences", systemImage: "gearshape") }
+                    .tag("preferences")
 
                 ServicesSettingsView(services: $draftServices)
                     .tabItem { Label("Services", systemImage: "antenna.radiowaves.left.and.right") }
+                    .tag("services")
             }
 
             if let applyErrorMessage {
@@ -58,7 +62,17 @@ struct SettingsView: View {
         }
         .padding(.bottom, 12)
         .frame(width: 520, height: 340)
-        .onAppear(perform: resetDrafts)
+        .onAppear {
+            resetDrafts()
+            if let requested = appState.settingsTab {
+                selectedTab = requested
+            }
+        }
+        .onChange(of: appState.settingsTab) { _, newValue in
+            if let newValue {
+                selectedTab = newValue
+            }
+        }
     }
 
     private func resetDrafts() {
