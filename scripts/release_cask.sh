@@ -32,10 +32,12 @@ if [[ "$SKIP_NOTARIZE" != "1" && -z "$NOTARY_PROFILE" ]]; then
 fi
 
 echo "Building Release..."
-xcodebuild -project "$ROOT_DIR/$PROJECT" -scheme "$SCHEME" -configuration "$CONFIGURATION" build
+xcodebuild -project "$ROOT_DIR/$PROJECT" -scheme "$SCHEME" -configuration "$CONFIGURATION" \
+  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGNING_IDENTITY="" build
 
 APP_PATH="$(
-  xcodebuild -project "$ROOT_DIR/$PROJECT" -scheme "$SCHEME" -configuration "$CONFIGURATION" -showBuildSettings \
+  xcodebuild -project "$ROOT_DIR/$PROJECT" -scheme "$SCHEME" -configuration "$CONFIGURATION" \
+    CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGNING_IDENTITY="" -showBuildSettings \
     | awk -F ' = ' '/TARGET_BUILD_DIR/ {build=$2} /WRAPPER_NAME/ {wrap=$2} END {print build "/" wrap}'
 )"
 
