@@ -1,0 +1,3 @@
+// Shared xcconfig (safe to commit).
+// Create Config/Local.xcconfig for your personal values (ignored by git).
+#include? "Local.xcconfig"
