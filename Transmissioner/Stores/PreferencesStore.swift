@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import ServiceManagement
 
 final class PreferencesStore: ObservableObject {
     @Published var autoRefresh: Bool {
@@ -49,5 +50,22 @@ final class PreferencesStore: ObservableObject {
         defaults.set(autoRefreshInterval, forKey: intervalKey)
         defaults.set(compactView, forKey: compactViewKey)
         defaults.set(allowInsecureTLS, forKey: allowInsecureTLSKey)
+    }
+
+    func runAtLoginEnabled() -> Bool {
+        if #available(macOS 13.0, *) {
+            return SMAppService.mainApp.status == .enabled
+        }
+        return false
+    }
+
+    func setRunAtLogin(enabled: Bool) throws {
+        if #available(macOS 13.0, *) {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        }
     }
 }

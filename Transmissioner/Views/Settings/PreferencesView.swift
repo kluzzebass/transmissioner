@@ -4,6 +4,7 @@ struct PreferencesView: View {
     @Binding var autoRefresh: Bool
     @Binding var autoRefreshInterval: Double
     @Binding var allowInsecureTLS: Bool
+    @Binding var runAtLogin: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -25,6 +26,8 @@ struct PreferencesView: View {
 
             Toggle("Allow insecure TLS (self‑signed/legacy)", isOn: $allowInsecureTLS)
                 .help("Relaxes App Transport Security checks for Transmission connections.")
+
+            Toggle("Run at startup", isOn: $runAtLogin)
 
             Spacer()
         }

@@ -48,6 +48,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 520, height: 340)
+        .windowResizability(.contentSize)
 
         Window("Set Location", id: "set-location") {
             MoveLocationView()

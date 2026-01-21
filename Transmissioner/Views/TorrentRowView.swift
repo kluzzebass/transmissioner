@@ -66,24 +66,24 @@ struct TorrentRowView: View {
                     .foregroundColor(.red)
                     .lineLimit(2)
             } else if !compact {
-                HStack(spacing: 12) {
-                    Text(Formatters.percentString(torrent.percentDone))
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+            HStack(spacing: 12) {
+                Text(Formatters.percentString(torrent.percentDone))
+                    .font(.caption)
+                    .foregroundColor(.secondary)
 
-                    Text("DL \(Formatters.rateString(torrent.rateDownload))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                Text("DL \(Formatters.rateString(torrent.rateDownload))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
 
-                    Text("UL \(Formatters.rateString(torrent.rateUpload))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                Text("UL \(Formatters.rateString(torrent.rateUpload))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
 
-                    Text("ETA \(Formatters.etaString(torrent.eta))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                Text("ETA \(Formatters.etaString(torrent.eta))")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
 
-                    Spacer()
+                Spacer()
                 }
             }
         }

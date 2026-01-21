@@ -18,7 +18,7 @@ struct TorrentListView: View {
 
     var body: some View {
         ZStack {
-            VStack(spacing: 8) {
+        VStack(spacing: 8) {
                 if viewModel.isLoading && viewModel.torrents.isEmpty {
                     HStack(spacing: 8) {
                         ProgressView()
@@ -50,24 +50,24 @@ struct TorrentListView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                if let lastError = viewModel.lastError {
-                    Text(lastError)
-                        .foregroundColor(.red)
-                        .font(.caption)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
+            if let lastError = viewModel.lastError {
+                Text(lastError)
+                    .foregroundColor(.red)
+                    .font(.caption)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
-                List {
+            List {
                     ForEach(torrents) { torrent in
-                        TorrentRowView(
-                            torrent: torrent,
+                    TorrentRowView(
+                        torrent: torrent,
                             globalSeedRatioLimit: viewModel.sessionSeedRatioLimit,
                             globalSeedRatioLimited: viewModel.sessionSeedRatioLimited,
                             compact: compact,
-                            onToggle: { Task { await toggle(torrent) } },
+                        onToggle: { Task { await toggle(torrent) } },
                             onRequestRemove: { pendingRemoval = PendingRemoval(torrent: torrent, deleteData: false) },
                             onRequestRemoveWithData: { pendingRemoval = PendingRemoval(torrent: torrent, deleteData: true) },
-                            onVerify: { Task { await viewModel.verify(ids: [torrent.id]) } },
+                        onVerify: { Task { await viewModel.verify(ids: [torrent.id]) } },
                             onReannounce: { Task { await viewModel.reannounce(ids: [torrent.id]) } },
                             onQueueMoveTop: { Task { await viewModel.moveQueueTop(ids: [torrent.id]) } },
                             onQueueMoveUp: { Task { await viewModel.moveQueueUp(ids: [torrent.id]) } },
@@ -85,12 +85,12 @@ struct TorrentListView: View {
                             onRename: { onRename(torrent) },
                             onLabels: { onLabels(torrent) },
                             onErrorDetails: { onErrorDetails(torrent) }
-                        )
-                        .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
+                    )
+                    .listRowInsets(EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8))
                         .id(torrent.id)
-                    }
                 }
-                .listStyle(.inset)
+            }
+            .listStyle(.inset)
                 .transaction { transaction in
                     transaction.disablesAnimations = true
                 }

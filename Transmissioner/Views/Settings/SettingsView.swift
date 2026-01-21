@@ -8,7 +8,9 @@ struct SettingsView: View {
     @State private var draftAutoRefresh = true
     @State private var draftAutoRefreshInterval = 20.0
     @State private var draftAllowInsecureTLS = false
+    @State private var draftRunAtLogin = false
     @State private var draftServices: [ServiceConfig] = []
+    @State private var applyErrorMessage: String?
 
     var body: some View {
         VStack(spacing: 12) {
@@ -16,13 +18,23 @@ struct SettingsView: View {
                 PreferencesView(
                     autoRefresh: $draftAutoRefresh,
                     autoRefreshInterval: $draftAutoRefreshInterval,
-                    allowInsecureTLS: $draftAllowInsecureTLS
+                    allowInsecureTLS: $draftAllowInsecureTLS,
+                    runAtLogin: $draftRunAtLogin
                 )
                     .tabItem { Label("Preferences", systemImage: "gearshape") }
 
                 ServicesSettingsView(services: $draftServices)
                     .tabItem { Label("Services", systemImage: "antenna.radiowaves.left.and.right") }
             }
+
+            if let applyErrorMessage {
+                Text(applyErrorMessage)
+                    .font(.caption)
+                    .foregroundColor(.red)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            Divider()
 
             HStack {
                 Spacer()
@@ -34,11 +46,12 @@ struct SettingsView: View {
                     applyDrafts()
                     dismiss()
                 }
-                    .buttonStyle(.borderedProminent)
+                .buttonStyle(.borderedProminent)
             }
+            .padding(.horizontal, 16)
         }
         .padding(.bottom, 12)
-        .frame(minWidth: 560, minHeight: 380)
+        .frame(width: 520, height: 340)
         .onAppear(perform: resetDrafts)
     }
 
@@ -46,7 +59,9 @@ struct SettingsView: View {
         draftAutoRefresh = preferences.autoRefresh
         draftAutoRefreshInterval = preferences.autoRefreshInterval
         draftAllowInsecureTLS = preferences.allowInsecureTLS
+        draftRunAtLogin = preferences.runAtLoginEnabled()
         draftServices = serviceStore.services
+        applyErrorMessage = nil
     }
 
     private func applyDrafts() {
@@ -54,5 +69,11 @@ struct SettingsView: View {
         preferences.autoRefreshInterval = draftAutoRefreshInterval
         preferences.allowInsecureTLS = draftAllowInsecureTLS
         serviceStore.replaceAll(draftServices)
+        applyErrorMessage = nil
+        do {
+            try preferences.setRunAtLogin(enabled: draftRunAtLogin)
+        } catch {
+            applyErrorMessage = error.localizedDescription
+        }
     }
 }

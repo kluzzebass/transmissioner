@@ -16,18 +16,21 @@ final class ServiceStore: ObservableObject {
     }
 
     func add(_ service: ServiceConfig) {
+        KeychainStore.savePassword(service.password, for: service.id)
         services.append(service)
         persist()
     }
 
     func update(_ service: ServiceConfig) {
         guard let index = services.firstIndex(where: { $0.id == service.id }) else { return }
+        KeychainStore.savePassword(service.password, for: service.id)
         services[index] = service
         persist()
     }
 
     func remove(_ service: ServiceConfig) {
         services.removeAll { $0.id == service.id }
+        KeychainStore.deletePassword(for: service.id)
         persist()
     }
 
@@ -43,13 +46,30 @@ final class ServiceStore: ObservableObject {
         persist()
     }
 
+    func replaceAll(_ newServices: [ServiceConfig]) {
+        let existingIDs = Set(services.map(\.id))
+        let newIDs = Set(newServices.map(\.id))
+
+        let removedIDs = existingIDs.subtracting(newIDs)
+        removedIDs.forEach { KeychainStore.deletePassword(for: $0) }
+
+        newServices.forEach { KeychainStore.savePassword($0.password, for: $0.id) }
+        services = newServices
+        persist()
+    }
+
     private func load() {
         guard let data = defaults.data(forKey: defaultsKey) else {
             services = []
             return
         }
         do {
-            services = try JSONDecoder().decode([ServiceConfig].self, from: data)
+            let decoded = try JSONDecoder().decode([ServiceConfig].self, from: data)
+            services = decoded.map { service in
+                var updated = service
+                updated.password = KeychainStore.password(for: service.id) ?? ""
+                return updated
+            }
         } catch {
             services = []
         }
