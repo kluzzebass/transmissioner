@@ -36,3 +36,7 @@ restart: stop run
 # Copy the Release build into /Applications.
 install: release
 	APP_PATH=$(xcodebuild -project {{project}} -scheme {{scheme}} -configuration Release -showBuildSettings | awk -F ' = ' '/TARGET_BUILD_DIR/ {build=$2} /WRAPPER_NAME/ {wrap=$2} END {print build "/" wrap}') && cp -R "$APP_PATH" /Applications/
+
+# Build, sign, notarize, and package a Homebrew cask release.
+cask-release:
+	./scripts/release_cask.sh
