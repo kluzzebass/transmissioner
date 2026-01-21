@@ -3,6 +3,7 @@ import SwiftUI
 struct ConnectionDiagnosticsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isTesting = false
     @State private var testResult: TestResult?
@@ -10,30 +11,32 @@ struct ConnectionDiagnosticsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Connection Diagnostics")
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                if isTesting {
+            if isTesting {
+                HStack {
+                    Spacer()
                     ProgressView()
                         .controlSize(.small)
                 }
             }
 
-            if let service = selectedService {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(service.name)
-                        .font(.headline)
-                    Text(service.rpcURL.absoluteString)
-                        .font(.caption)
+            GroupBox("Service") {
+                if let service = selectedService {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(service.name)
+                            .font(.headline)
+                        Text(service.rpcURL.absoluteString)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(service.username.isEmpty ? "Auth: none" : "Auth: username set")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Text("No services configured. Add one in Settings.")
                         .foregroundColor(.secondary)
-                    Text(service.username.isEmpty ? "Auth: none" : "Auth: username set")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-            } else {
-                Text("No services configured. Add one in Settings.")
-                    .foregroundColor(.secondary)
             }
 
             if let errorMessage {
@@ -43,20 +46,25 @@ struct ConnectionDiagnosticsView: View {
             }
 
             if let testResult {
-                Form {
-                    LabeledContent("Status") {
-                        Text(testResult.success ? "Connected" : "Failed")
-                            .foregroundColor(testResult.success ? .green : .red)
+                GroupBox("Result") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        LabeledContent("Status") {
+                            Text(testResult.success ? "Connected" : "Failed")
+                                .foregroundColor(testResult.success ? .green : .red)
+                        }
+                        LabeledContent("Latency") {
+                            Text("\(testResult.durationMs) ms")
+                                .monospacedDigit()
+                        }
+                        LabeledContent("Version") {
+                            Text(testResult.version ?? "—")
+                        }
                     }
-                    LabeledContent("Latency") {
-                        Text("\(testResult.durationMs) ms")
-                            .monospacedDigit()
-                    }
-                    LabeledContent("Version") {
-                        Text(testResult.version ?? "—")
-                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
+
+            Spacer()
 
             HStack {
                 Button("Test Connection") { Task { await testConnection() } }
@@ -66,7 +74,8 @@ struct ConnectionDiagnosticsView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 480)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .frame(width: 440, height: 300)
     }
 
     private func testConnection() async {
@@ -75,7 +84,10 @@ struct ConnectionDiagnosticsView: View {
         isTesting = true
         let start = Date()
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let response: SessionGetResponseArguments = try await client.request(
                 method: "session-get",
                 arguments: SessionGetArguments()

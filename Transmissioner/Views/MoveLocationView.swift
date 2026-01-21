@@ -3,6 +3,7 @@ import SwiftUI
 struct MoveLocationView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var location = ""
     @State private var moveData = true
@@ -64,7 +65,10 @@ struct MoveLocationView: View {
         defer { isSubmitting = false }
 
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let _: EmptyResponse = try await client.request(
                 method: "torrent-set-location",
                 arguments: TorrentSetLocationArguments(ids: ids, location: trimmed, move: moveData)

@@ -3,6 +3,7 @@ import SwiftUI
 struct FreeSpaceView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var path: String = ""
     @State private var isLoading = false
@@ -12,21 +13,24 @@ struct FreeSpaceView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Free Space")
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                if isLoading {
+            if isLoading {
+                HStack {
+                    Spacer()
                     ProgressView()
                         .controlSize(.small)
                 }
             }
 
-            Text("Path on the remote server")
-                .font(.headline)
-
-            TextField("e.g. /data/media/downloads", text: $path)
-                .textFieldStyle(.roundedBorder)
+            GroupBox("Lookup") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Path on the remote server")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                    TextField("e.g. /data/media/downloads", text: $path)
+                        .textFieldStyle(.roundedBorder)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
             if let errorMessage {
                 Text(errorMessage)
@@ -34,17 +38,22 @@ struct FreeSpaceView: View {
                     .foregroundColor(.red)
             }
 
-            Form {
-                LabeledContent("Free space") {
-                    Text(freeSpace)
-                        .monospacedDigit()
+            GroupBox("Results") {
+                VStack(alignment: .leading, spacing: 10) {
+                    LabeledContent("Free space") {
+                        Text(freeSpace)
+                            .monospacedDigit()
+                    }
+                    LabeledContent("Resolved path") {
+                        Text(resolvedPath)
+                            .lineLimit(2)
+                            .truncationMode(.middle)
+                    }
                 }
-                LabeledContent("Resolved path") {
-                    Text(resolvedPath)
-                        .lineLimit(2)
-                        .truncationMode(.middle)
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            Spacer()
 
             HStack {
                 Spacer()
@@ -55,7 +64,8 @@ struct FreeSpaceView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 460)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .frame(width: 440, height: 300)
     }
 
     private func lookup() async {
@@ -72,7 +82,10 @@ struct FreeSpaceView: View {
         defer { isLoading = false }
 
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let response: FreeSpaceResponseArguments = try await client.request(
                 method: "free-space",
                 arguments: FreeSpaceArguments(path: trimmed)

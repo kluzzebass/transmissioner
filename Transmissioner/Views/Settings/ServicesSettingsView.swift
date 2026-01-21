@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ServicesSettingsView: View {
-    @EnvironmentObject private var serviceStore: ServiceStore
+    @Binding var services: [ServiceConfig]
     @State private var editingService: ServiceConfig?
     @State private var editorID = UUID()
     @State private var showingAddEditor = false
@@ -19,7 +19,7 @@ struct ServicesSettingsView: View {
             }
 
             List {
-                ForEach(serviceStore.services) { service in
+                ForEach(services) { service in
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(service.name)
@@ -51,7 +51,7 @@ struct ServicesSettingsView: View {
                         .disabled(isLast(service))
 
                         Button(role: .destructive) {
-                            serviceStore.remove(service)
+                            services.removeAll { $0.id == service.id }
                         } label: {
                             Image(systemName: "trash")
                         }
@@ -66,10 +66,10 @@ struct ServicesSettingsView: View {
         .padding(16)
         .sheet(item: $editingService) { service in
             ServiceEditorView(service: service) { updated in
-                if serviceStore.services.contains(where: { $0.id == updated.id }) {
-                    serviceStore.update(updated)
+                if let index = services.firstIndex(where: { $0.id == updated.id }) {
+                    services[index] = updated
                 } else {
-                    serviceStore.add(updated)
+                    services.append(updated)
                 }
                 editingService = nil
             } onCancel: {
@@ -78,7 +78,7 @@ struct ServicesSettingsView: View {
         }
         .sheet(isPresented: $showingAddEditor) {
             ServiceEditorView(service: nil) { updated in
-                serviceStore.add(updated)
+                services.append(updated)
                 showingAddEditor = false
             } onCancel: {
                 showingAddEditor = false
@@ -88,16 +88,19 @@ struct ServicesSettingsView: View {
     }
 
     private func move(_ service: ServiceConfig, direction: Int) {
-        guard let index = serviceStore.services.firstIndex(of: service) else { return }
-        let destination = max(0, min(serviceStore.services.count, index + direction))
-        serviceStore.move(from: IndexSet(integer: index), to: destination)
+        guard let index = services.firstIndex(of: service) else { return }
+        let destination = max(0, min(services.count, index + direction))
+        let moving = services[index]
+        services.remove(at: index)
+        let insertIndex = min(destination, services.count)
+        services.insert(moving, at: insertIndex)
     }
 
     private func isFirst(_ service: ServiceConfig) -> Bool {
-        serviceStore.services.first == service
+        services.first == service
     }
 
     private func isLast(_ service: ServiceConfig) -> Bool {
-        serviceStore.services.last == service
+        services.last == service
     }
 }

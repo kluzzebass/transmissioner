@@ -3,6 +3,7 @@ import SwiftUI
 struct TorrentStatsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -114,7 +115,10 @@ struct TorrentStatsView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: TorrentStatsResponseArguments = try await client.request(
                     method: "torrent-get",
                     arguments: TorrentGetArguments(

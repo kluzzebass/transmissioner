@@ -40,7 +40,8 @@
 
 ## Later / Distribution
 
-- [ ] Keychain storage for credentials.
-- [ ] TLS/HTTPS configuration hints and ATS exceptions UI.
+- [x] Keychain storage for credentials.
+- [x] TLS/HTTPS configuration hints and ATS exceptions UI.
+- [ ] Run at startup registration.
 - [ ] Developer ID signing + notarization pipeline.
 - [ ] Homebrew cask packaging guide.

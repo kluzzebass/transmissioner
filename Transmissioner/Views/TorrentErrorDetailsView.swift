@@ -3,6 +3,7 @@ import SwiftUI
 struct TorrentErrorDetailsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -78,7 +79,10 @@ struct TorrentErrorDetailsView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: TorrentErrorResponseArguments = try await client.request(
                     method: "torrent-get",
                     arguments: TorrentGetArguments(
@@ -111,7 +115,10 @@ struct TorrentErrorDetailsView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let _: EmptyResponse = try await client.request(
                 method: method,
                 arguments: TorrentActionArguments(ids: [torrentID])

@@ -1,23 +1,30 @@
 import SwiftUI
 
 struct PreferencesView: View {
-    @EnvironmentObject private var preferences: PreferencesStore
+    @Binding var autoRefresh: Bool
+    @Binding var autoRefreshInterval: Double
+    @Binding var allowInsecureTLS: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Preferences")
                 .font(.title2.weight(.semibold))
 
-            Toggle("Auto refresh torrents", isOn: $preferences.autoRefresh)
+            Toggle("Auto refresh torrents", isOn: $autoRefresh)
 
             HStack {
                 Text("Refresh interval")
-                Stepper(value: $preferences.autoRefreshInterval, in: 5...60, step: 5) {
-                    Text("\(Int(preferences.autoRefreshInterval)) seconds")
+                Stepper(value: $autoRefreshInterval, in: 5...60, step: 5) {
+                    Text("\(Int(autoRefreshInterval)) seconds")
                         .frame(minWidth: 120, alignment: .leading)
                 }
-                .disabled(!preferences.autoRefresh)
+                .disabled(!autoRefresh)
             }
+
+            Divider()
+
+            Toggle("Allow insecure TLS (self‑signed/legacy)", isOn: $allowInsecureTLS)
+                .help("Relaxes App Transport Security checks for Transmission connections.")
 
             Spacer()
         }

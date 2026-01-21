@@ -3,6 +3,7 @@ import SwiftUI
 struct SeedingLimitsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -106,7 +107,10 @@ struct SeedingLimitsView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: TorrentSeedLimitsResponseArguments = try await client.request(
                     method: "torrent-get",
                     arguments: TorrentGetArguments(
@@ -137,7 +141,10 @@ struct SeedingLimitsView: View {
         defer { isLoading = false }
 
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let args = TorrentSetSeedLimitsArguments(
                 ids: [torrentID],
                 seedRatioLimit: ratioMode == .custom ? ratioLimit : nil,

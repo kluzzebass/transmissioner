@@ -3,6 +3,7 @@ import SwiftUI
 struct SessionInfoView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -11,11 +12,9 @@ struct SessionInfoView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Session Info")
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                if isLoading {
+            if isLoading {
+                HStack {
+                    Spacer()
                     ProgressView()
                         .controlSize(.small)
                 }
@@ -27,17 +26,22 @@ struct SessionInfoView: View {
                     .foregroundColor(.red)
             }
 
-            Form {
-                LabeledContent("Version") {
-                    Text(version)
-                        .monospacedDigit()
+            GroupBox {
+                VStack(alignment: .leading, spacing: 10) {
+                    LabeledContent("Version") {
+                        Text(version)
+                            .monospacedDigit()
+                    }
+                    LabeledContent("Default download dir") {
+                        Text(downloadDir)
+                            .lineLimit(2)
+                            .truncationMode(.middle)
+                    }
                 }
-                LabeledContent("Default download dir") {
-                    Text(downloadDir)
-                        .lineLimit(2)
-                        .truncationMode(.middle)
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+
+            Spacer()
 
             HStack {
                 Spacer()
@@ -45,7 +49,8 @@ struct SessionInfoView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 420)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .frame(width: 440, height: 300)
         .onAppear(perform: load)
         .onChange(of: appState.selectedServiceID) { _, _ in load() }
     }
@@ -62,7 +67,10 @@ struct SessionInfoView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: SessionGetResponseArguments = try await client.request(
                     method: "session-get",
                     arguments: SessionGetArguments()

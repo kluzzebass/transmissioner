@@ -3,6 +3,7 @@ import SwiftUI
 struct BandwidthLimitsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @State private var isLoadingSession = false
     @State private var sessionError: String?
     @State private var downloadLimitEnabled = false
@@ -18,11 +19,9 @@ struct BandwidthLimitsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Bandwidth Limits")
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                if isLoadingSession {
+            if isLoadingSession {
+                HStack {
+                    Spacer()
                     ProgressView()
                         .controlSize(.small)
                 }
@@ -56,6 +55,8 @@ struct BandwidthLimitsView: View {
                     .foregroundColor(.red)
             }
 
+            Spacer()
+
             HStack {
                 Spacer()
                 Button("Cancel") {
@@ -69,7 +70,8 @@ struct BandwidthLimitsView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 420)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .frame(width: 440, height: 300)
         .onAppear(perform: loadSessionLimits)
         .onChange(of: appState.selectedServiceID) { _, _ in
             loadSessionLimits()
@@ -160,7 +162,10 @@ struct BandwidthLimitsView: View {
         Task {
             defer { isLoadingSession = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let session: SessionGetResponseArguments = try await client.request(
                     method: "session-get",
                     arguments: SessionGetArguments()
@@ -200,7 +205,10 @@ struct BandwidthLimitsView: View {
         Task {
             defer { isLoadingSession = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let _: EmptyResponse = try await client.request(
                     method: "session-set",
                     arguments: args

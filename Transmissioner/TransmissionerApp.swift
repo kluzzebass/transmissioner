@@ -49,101 +49,104 @@ struct TransmissionerApp: App {
                 .environmentObject(preferences)
         }
 
-        Window("Bandwidth Limits", id: "bandwidth") {
-            BandwidthLimitsView()
-                .environmentObject(serviceStore)
-                .environmentObject(appState)
-        }
-
         Window("Set Location", id: "set-location") {
             MoveLocationView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("File Selection", id: "file-selection") {
             FileSelectionView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("Session Info", id: "session-info") {
             SessionInfoView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
+        .defaultSize(width: 440, height: 300)
+        .windowResizability(.contentSize)
 
         Window("Free Space", id: "free-space") {
             FreeSpaceView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
+        .defaultSize(width: 440, height: 300)
+        .windowResizability(.contentSize)
 
         Window("Trackers", id: "trackers") {
             TrackersView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("Torrent Stats", id: "torrent-stats") {
             TorrentStatsView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("Peers", id: "peers") {
             PeersView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("Seeding Limits", id: "seeding-limits") {
             SeedingLimitsView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("Rename Torrent", id: "rename-torrent") {
             RenameTorrentView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("Labels", id: "labels") {
             LabelsView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
         Window("Error Details", id: "error-details") {
             TorrentErrorDetailsView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
 
-        Window("Session Settings", id: "session-settings") {
-            SessionSettingsView()
+        Window("Server Settings", id: "server-settings") {
+            TransmissionSettingsView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
-
-        Window("Blocklist", id: "blocklist") {
-            BlocklistView()
-                .environmentObject(serviceStore)
-                .environmentObject(appState)
-        }
-
-        Window("Port Settings", id: "port-settings") {
-            PortSettingsView()
-                .environmentObject(serviceStore)
-                .environmentObject(appState)
-        }
+        .defaultSize(width: 630, height: 320)
+        .windowResizability(.contentSize)
 
         Window("Connection Diagnostics", id: "connection-diagnostics") {
             ConnectionDiagnosticsView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
+                .environmentObject(preferences)
         }
+        .defaultSize(width: 440, height: 300)
+        .windowResizability(.contentSize)
 
     }
 }

@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ServiceEditorView: View {
+    @EnvironmentObject private var preferences: PreferencesStore
+
     struct Draft {
         var name: String
         var baseURL: String
@@ -118,7 +120,10 @@ struct ServiceEditorView: View {
             password: draft.password
         )
 
-        let client = TransmissionRPCClient(config: config)
+        let client = TransmissionRPCClient(
+            config: config,
+            allowInsecureTLS: preferences.allowInsecureTLS
+        )
         do {
             let response: SessionGetResponseArguments = try await client.request(
                 method: "session-get",

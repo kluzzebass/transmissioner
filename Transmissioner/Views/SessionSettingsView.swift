@@ -3,6 +3,7 @@ import SwiftUI
 struct SessionSettingsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -12,11 +13,9 @@ struct SessionSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Session Settings")
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                if isLoading {
+            if isLoading {
+                HStack {
+                    Spacer()
                     ProgressView()
                         .controlSize(.small)
                 }
@@ -28,17 +27,17 @@ struct SessionSettingsView: View {
                     .foregroundColor(.red)
             }
 
-            Form {
-                Section("Encryption") {
-                    Picker("Mode", selection: $encryption) {
-                        ForEach(EncryptionMode.allCases) { mode in
-                            Text(mode.label).tag(mode)
-                        }
+            GroupBox("Encryption") {
+                Picker("Mode", selection: $encryption) {
+                    ForEach(EncryptionMode.allCases) { mode in
+                        Text(mode.label).tag(mode)
                     }
-                    .pickerStyle(.segmented)
                 }
+                .pickerStyle(.segmented)
+            }
 
-                Section("Peer Limits") {
+            GroupBox("Peer Limits") {
+                VStack(alignment: .leading, spacing: 8) {
                     Stepper(value: $peerLimitGlobal, in: 1...5_000) {
                         LabeledContent("Global", value: "\(peerLimitGlobal)")
                             .monospacedDigit()
@@ -50,6 +49,8 @@ struct SessionSettingsView: View {
                 }
             }
 
+            Spacer()
+
             HStack {
                 Spacer()
                 Button("Cancel") { dismiss() }
@@ -58,7 +59,8 @@ struct SessionSettingsView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 440)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .frame(width: 440, height: 300)
         .onAppear(perform: load)
         .onChange(of: appState.selectedServiceID) { _, _ in load() }
     }
@@ -75,7 +77,10 @@ struct SessionSettingsView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: SessionGetResponseArguments = try await client.request(
                     method: "session-get",
                     arguments: SessionGetArguments()
@@ -96,7 +101,10 @@ struct SessionSettingsView: View {
         defer { isLoading = false }
 
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let args = SessionSetPeerLimitsArguments(
                 encryption: encryption.rawValue,
                 peerLimitGlobal: peerLimitGlobal,

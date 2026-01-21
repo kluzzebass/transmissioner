@@ -3,6 +3,7 @@ import SwiftUI
 struct PortSettingsView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -12,11 +13,9 @@ struct PortSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Port Settings")
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                if isLoading {
+            if isLoading {
+                HStack {
+                    Spacer()
                     ProgressView()
                         .controlSize(.small)
                 }
@@ -28,20 +27,30 @@ struct PortSettingsView: View {
                     .foregroundColor(.red)
             }
 
-            Form {
-                Stepper(value: $peerPort, in: 1...65_535) {
-                    LabeledContent("Peer port", value: "\(peerPort)")
-                        .monospacedDigit()
-                }
-                Toggle("Randomize port on start", isOn: $randomOnStart)
-                LabeledContent("Port status") {
-                    Text(portStatusText)
-                        .foregroundColor(portStatusColor)
+            GroupBox("Port") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Stepper(value: $peerPort, in: 1...65_535) {
+                        LabeledContent("Peer port", value: "\(peerPort)")
+                            .monospacedDigit()
+                    }
+                    Toggle("Randomize port on start", isOn: $randomOnStart)
                 }
             }
 
+            GroupBox("Status") {
+                HStack {
+                    LabeledContent("Port status") {
+                        Text(portStatusText)
+                            .foregroundColor(portStatusColor)
+                    }
+                    Spacer()
+                    Button("Test Port") { Task { await testPort() } }
+                }
+            }
+
+            Spacer()
+
             HStack {
-                Button("Test Port") { Task { await testPort() } }
                 Spacer()
                 Button("Cancel") { dismiss() }
                 Button("OK") { Task { await save() } }
@@ -49,7 +58,8 @@ struct PortSettingsView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 440)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .frame(width: 440, height: 300)
         .onAppear(perform: load)
         .onChange(of: appState.selectedServiceID) { _, _ in load() }
     }
@@ -66,7 +76,10 @@ struct PortSettingsView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: SessionGetResponseArguments = try await client.request(
                     method: "session-get",
                     arguments: SessionGetArguments()
@@ -85,7 +98,10 @@ struct PortSettingsView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let args = SessionSetPortArguments(peerPort: peerPort, peerPortRandomOnStart: randomOnStart)
             let _: EmptyResponse = try await client.request(method: "session-set", arguments: args)
             dismiss()
@@ -99,7 +115,10 @@ struct PortSettingsView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let response: PortTestResponseArguments = try await client.request(
                 method: "port-test",
                 arguments: EmptyArguments()

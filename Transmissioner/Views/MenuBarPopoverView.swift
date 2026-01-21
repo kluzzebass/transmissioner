@@ -23,7 +23,7 @@ struct MenuBarPopoverView: View {
                 TorrentListView(
                     viewModel: viewModel,
                     torrents: filteredTorrents,
-                    compact: true,
+                    compact: preferences.compactView,
                     onSetLocation: { torrent in
                         appState.moveLocationTorrentIDs = [torrent.id]
                         NSApp.activate(ignoringOtherApps: true)
@@ -97,74 +97,10 @@ struct MenuBarPopoverView: View {
             }
             .help("Temporary Speed Limit")
 
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "bandwidth")
-            } label: {
-                Image(systemName: "speedometer")
-            }
-            .help("Bandwidth Limits")
-            .disabled(selectedService == nil)
+            serverSettingsMenu
 
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "session-info")
-            } label: {
-                Image(systemName: "info.circle")
-            }
-            .help("Session Info")
-            .disabled(selectedService == nil)
-
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "free-space")
-            } label: {
-                Image(systemName: "externaldrive")
-            }
-            .help("Free Space")
-            .disabled(selectedService == nil)
-
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "session-settings")
-            } label: {
-                Image(systemName: "slider.horizontal.3")
-            }
-            .help("Session Settings")
-            .disabled(selectedService == nil)
-
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "blocklist")
-            } label: {
-                Image(systemName: "shield")
-            }
-            .help("Blocklist")
-            .disabled(selectedService == nil)
-
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "port-settings")
-            } label: {
-                Image(systemName: "network")
-            }
-            .help("Port Settings")
-            .disabled(selectedService == nil)
-
-            Button {
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "connection-diagnostics")
-            } label: {
-                Image(systemName: "stethoscope")
-            }
-            .help("Connection Diagnostics")
-            .disabled(selectedService == nil)
-
-                    Spacer()
-                        Button(action: openSettings) {
-                            Image(systemName: "gearshape")
-                        }
-                        .help("Settings")
+            Spacer()
+            infoMenu
                 }
                 .buttonStyle(.bordered)
             } else {
@@ -201,6 +137,9 @@ struct MenuBarPopoverView: View {
         }
         .onAppear(perform: configureViewModel)
         .onChange(of: appState.selectedServiceID) { _, _ in configureViewModel() }
+        .onChange(of: preferences.allowInsecureTLS) { _, _ in
+            configureViewModel()
+        }
         .onReceive(refreshTimer) { _ in
             guard preferences.autoRefresh, selectedService != nil else { return }
             guard Date() >= suppressRefreshUntil else { return }
@@ -250,6 +189,10 @@ struct MenuBarPopoverView: View {
             }
             .disabled(selectedService == nil)
 
+            headerIconButton(systemName: "gearshape", help: "Settings") {
+                openSettings()
+            }
+
             headerIconButton(systemName: "power", help: "Quit") {
                 NSApplication.shared.terminate(nil)
             }
@@ -266,6 +209,40 @@ struct MenuBarPopoverView: View {
             Button("Open Settings", action: openSettings)
         }
         .frame(maxWidth: .infinity, minHeight: 200)
+    }
+
+    private var infoMenu: some View {
+        Menu {
+            Button("Session Info") {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "session-info")
+            }
+            Button("Free Space") {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "free-space")
+            }
+            Button("Connection Diagnostics") {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "connection-diagnostics")
+            }
+        } label: {
+            Image(systemName: "info.circle")
+        }
+        .help("Info")
+        .disabled(selectedService == nil)
+    }
+
+    private var serverSettingsMenu: some View {
+        Menu {
+            Button("Session Settings") { openServerSettings(section: "session") }
+            Button("Bandwidth Limits") { openServerSettings(section: "bandwidth") }
+            Button("Blocklist") { openServerSettings(section: "blocklist") }
+            Button("Port Settings") { openServerSettings(section: "port") }
+        } label: {
+            Image(systemName: "gearshape.2")
+        }
+        .help("Server Settings")
+        .disabled(selectedService == nil)
     }
 
     private var selectedService: ServiceConfig? {
@@ -352,12 +329,19 @@ struct MenuBarPopoverView: View {
         if appState.selectedServiceID == nil, let first = serviceStore.services.first {
             appState.selectedServiceID = first.id
         }
+        viewModel.allowInsecureTLS = preferences.allowInsecureTLS
         viewModel.configure(with: selectedService)
     }
 
     private func openSettings() {
         NSApp.activate(ignoringOtherApps: true)
         openWindow(id: "settings")
+    }
+
+    private func openServerSettings(section: String) {
+        appState.serverSettingsSection = section
+        NSApp.activate(ignoringOtherApps: true)
+        openWindow(id: "server-settings")
     }
 
     private func headerIconButton(systemName: String, help: String, action: @escaping () -> Void) -> some View {

@@ -12,6 +12,7 @@ final class TorrentListViewModel: ObservableObject {
     @Published var sessionSeedRatioLimit: Double?
     @Published var sessionSeedRatioLimited = false
     @Published var altSpeedEnabled = false
+    @Published var allowInsecureTLS = false
 
     private var client: TransmissionRPCClient?
     private var currentConfig: ServiceConfig?
@@ -19,7 +20,7 @@ final class TorrentListViewModel: ObservableObject {
     func configure(with config: ServiceConfig?) {
         guard currentConfig != config else { return }
         currentConfig = config
-        client = config.map { TransmissionRPCClient(config: $0) }
+        client = config.map { TransmissionRPCClient(config: $0, allowInsecureTLS: allowInsecureTLS) }
         torrents = []
         lastError = nil
         isOffline = false

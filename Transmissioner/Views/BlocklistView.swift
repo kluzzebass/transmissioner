@@ -3,6 +3,7 @@ import SwiftUI
 struct BlocklistView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -12,11 +13,9 @@ struct BlocklistView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Blocklist")
-                    .font(.title2.weight(.semibold))
-                Spacer()
-                if isLoading {
+            if isLoading {
+                HStack {
+                    Spacer()
                     ProgressView()
                         .controlSize(.small)
                 }
@@ -28,21 +27,33 @@ struct BlocklistView: View {
                     .foregroundColor(.red)
             }
 
-            Form {
-                Toggle("Enable blocklist", isOn: $blocklistEnabled)
-                LabeledContent("Blocklist URL") {
-                    TextField("", text: $blocklistURL)
-                        .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 240)
+            GroupBox("Settings") {
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle("Enable blocklist", isOn: $blocklistEnabled)
+                    LabeledContent("Blocklist URL") {
+                        TextField("", text: $blocklistURL)
+                            .textFieldStyle(.roundedBorder)
+                            .frame(minWidth: 260)
+                    }
                 }
-                LabeledContent("Entries") {
-                    Text("\(blocklistSize)")
-                        .monospacedDigit()
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
 
+            GroupBox("Status") {
+                HStack {
+                    LabeledContent("Entries") {
+                        Text("\(blocklistSize)")
+                            .monospacedDigit()
+                    }
+                    Spacer()
+                    Button("Update Now") { Task { await updateBlocklist() } }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            Spacer()
+
             HStack {
-                Button("Update Now") { Task { await updateBlocklist() } }
                 Spacer()
                 Button("Cancel") { dismiss() }
                 Button("OK") { Task { await save() } }
@@ -50,7 +61,8 @@ struct BlocklistView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 480)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .frame(width: 440, height: 300)
         .onAppear(perform: load)
         .onChange(of: appState.selectedServiceID) { _, _ in load() }
     }
@@ -67,7 +79,10 @@ struct BlocklistView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: SessionGetResponseArguments = try await client.request(
                     method: "session-get",
                     arguments: SessionGetArguments()
@@ -93,7 +108,10 @@ struct BlocklistView: View {
         defer { isLoading = false }
 
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let args = SessionSetBlocklistArguments(blocklistEnabled: blocklistEnabled, blocklistURL: trimmedURL)
             let _: EmptyResponse = try await client.request(method: "session-set", arguments: args)
             dismiss()
@@ -107,7 +125,10 @@ struct BlocklistView: View {
         isLoading = true
         defer { isLoading = false }
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let response: BlocklistUpdateResponseArguments = try await client.request(
                 method: "blocklist-update",
                 arguments: EmptyArguments()

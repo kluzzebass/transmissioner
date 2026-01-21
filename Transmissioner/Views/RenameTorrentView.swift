@@ -3,6 +3,7 @@ import SwiftUI
 struct RenameTorrentView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -68,7 +69,10 @@ struct RenameTorrentView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: TorrentGetResponseArguments = try await client.request(
                     method: "torrent-get",
                     arguments: TorrentGetArguments(fields: ["id", "name"], ids: [torrentID])
@@ -95,7 +99,10 @@ struct RenameTorrentView: View {
         defer { isLoading = false }
 
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let args = TorrentRenameArguments(ids: [torrentID], path: currentName, name: trimmed)
             let _: TorrentRenameResponseArguments = try await client.request(
                 method: "torrent-rename-path",

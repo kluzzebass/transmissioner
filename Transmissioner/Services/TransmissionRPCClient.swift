@@ -28,9 +28,19 @@ final class TransmissionRPCClient {
     private var sessionID: String?
     private let urlSession: URLSession
 
-    init(config: ServiceConfig, urlSession: URLSession = .shared) {
+    init(config: ServiceConfig, allowInsecureTLS: Bool = false, urlSession: URLSession? = nil) {
         self.config = config
-        self.urlSession = urlSession
+        if let urlSession {
+            self.urlSession = urlSession
+        } else if allowInsecureTLS {
+            self.urlSession = URLSession(
+                configuration: .default,
+                delegate: InsecureTLSDelegate(),
+                delegateQueue: nil
+            )
+        } else {
+            self.urlSession = .shared
+        }
     }
 
     func request<Arguments: Encodable, ResponseArguments: Decodable>(
@@ -102,5 +112,20 @@ final class TransmissionRPCClient {
         }
 
         return request
+    }
+}
+
+private final class InsecureTLSDelegate: NSObject, URLSessionDelegate {
+    func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
+        guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
+              let trust = challenge.protectionSpace.serverTrust else {
+            completionHandler(.performDefaultHandling, nil)
+            return
+        }
+        completionHandler(.useCredential, URLCredential(trust: trust))
     }
 }

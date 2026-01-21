@@ -3,6 +3,7 @@ import SwiftUI
 struct FileSelectionView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
+    @EnvironmentObject private var preferences: PreferencesStore
     @Environment(\.dismiss) private var dismiss
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -93,7 +94,10 @@ struct FileSelectionView: View {
         Task {
             defer { isLoading = false }
             do {
-                let client = TransmissionRPCClient(config: service)
+                let client = TransmissionRPCClient(
+                    config: service,
+                    allowInsecureTLS: preferences.allowInsecureTLS
+                )
                 let response: TorrentGetFilesResponseArguments = try await client.request(
                     method: "torrent-get",
                     arguments: TorrentGetArguments(fields: ["id", "name", "files", "fileStats"], ids: [torrentID])
@@ -133,7 +137,10 @@ struct FileSelectionView: View {
         defer { isLoading = false }
 
         do {
-            let client = TransmissionRPCClient(config: service)
+            let client = TransmissionRPCClient(
+                config: service,
+                allowInsecureTLS: preferences.allowInsecureTLS
+            )
             let args = TorrentSetFilesArguments(
                 ids: [torrentID],
                 filesWanted: wanted,
