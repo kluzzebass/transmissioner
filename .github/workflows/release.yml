@@ -82,14 +82,15 @@ jobs:
           fi
           TAP_DIR="$(mktemp -d)"
           git clone "https://$TAP_TOKEN@github.com/$TAP_REPO.git" "$TAP_DIR"
-          cp dist/cask.rb "$TAP_DIR/transmissioner.rb"
+          mkdir -p "$TAP_DIR/Casks"
+          cp dist/cask.rb "$TAP_DIR/Casks/transmissioner.rb"
           cd "$TAP_DIR"
-          git add transmissioner.rb
+          git add Casks/transmissioner.rb
           if git diff --cached --quiet; then
             echo "Tap already up to date."
             exit 0
           fi
-          VERSION="$(ruby -ne 'puts $1 if $_ =~ /version \"([^\"]+)\"/' transmissioner.rb | head -n 1)"
+          VERSION="$(ruby -ne 'puts $1 if $_ =~ /version \"([^\"]+)\"/' Casks/transmissioner.rb | head -n 1)"
           git -c user.name="github-actions" -c user.email="github-actions@github.com" \
             commit -m "Update transmissioner cask to ${VERSION}"
           git push

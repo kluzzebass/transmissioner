@@ -36,6 +36,12 @@ struct SettingsView: View {
 
             Divider()
 
+            Text("Copyright © 2026 Jan Fredrik Leversund. All rights reserved.")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+
             HStack {
                 Spacer()
                 Button("Cancel") {

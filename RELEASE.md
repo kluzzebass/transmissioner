@@ -5,7 +5,7 @@ This project ships as a signed + notarized `.app` inside a Homebrew cask.
 ## GitHub Actions release flow
 
 Tagging `v<version>` builds, signs, notarizes, uploads the zip to GitHub
-Releases, and updates your Homebrew tap.
+Releases, and updates your Homebrew tap (`Casks/transmissioner.rb`).
 
 ### Required GitHub secrets
 
