@@ -221,9 +221,8 @@ struct TorrentRowView: View {
                     .frame(width: max(2, width * CGFloat(torrent.percentDone)))
                 if let seedOverlayProgress {
                     Capsule()
-                        .fill(.primary.opacity(0.3))
+                        .fill(.white.opacity(0.6))
                         .frame(width: max(2, width * CGFloat(seedOverlayProgress)))
-                        .offset(y: -2)
                 }
             }
         }
