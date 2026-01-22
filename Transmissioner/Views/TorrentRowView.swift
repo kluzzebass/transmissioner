@@ -24,7 +24,6 @@ struct TorrentRowView: View {
     let onStats: () -> Void
     let onPeers: () -> Void
     let onSeedingLimits: () -> Void
-    let onRename: () -> Void
     let onLabels: () -> Void
     let onErrorDetails: () -> Void
     @State private var optionPressed = false
@@ -97,7 +96,6 @@ struct TorrentRowView: View {
             Button("Stats…", action: onStats)
             Button("Peers…", action: onPeers)
             Button("Seeding Limits…", action: onSeedingLimits)
-            Button("Rename…", action: onRename)
             Button("Labels…", action: onLabels)
             Button("Error Details…", action: onErrorDetails)
                 .disabled(torrent.errorString?.isEmpty != false)
@@ -217,14 +215,15 @@ struct TorrentRowView: View {
             let width = proxy.size.width
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(Color.gray.opacity(0.2))
+                    .fill(.separator.opacity(0.5))
                 Capsule()
                     .fill(progressColor)
                     .frame(width: max(2, width * CGFloat(torrent.percentDone)))
                 if let seedOverlayProgress {
                     Capsule()
-                        .fill(Color.green.opacity(0.5))
+                        .fill(.primary.opacity(0.3))
                         .frame(width: max(2, width * CGFloat(seedOverlayProgress)))
+                        .offset(y: -2)
                 }
             }
         }

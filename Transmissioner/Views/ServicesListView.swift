@@ -107,12 +107,6 @@ struct ServicesListView: View {
                 NSApp.activate(ignoringOtherApps: true)
                 openWindow(id: "seeding-limits")
             },
-            onRename: { torrent in
-                appState.selectedServiceID = service.id
-                appState.renameTorrentID = torrent.id
-                NSApp.activate(ignoringOtherApps: true)
-                openWindow(id: "rename-torrent")
-            },
             onLabels: { torrent in
                 appState.selectedServiceID = service.id
                 appState.labelsTorrentID = torrent.id

@@ -9,8 +9,8 @@ struct StatusPillView: View {
             .font(.caption2.weight(.medium))
             .padding(.horizontal, 6)
             .padding(.vertical, 2)
-            .background(color.opacity(0.2))
-            .foregroundColor(color)
+            .background(color.opacity(0.15))
+            .foregroundStyle(color)
             .clipShape(Capsule())
     }
 }

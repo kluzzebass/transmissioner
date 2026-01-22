@@ -10,7 +10,6 @@ struct TorrentListView: View {
     let onStats: (TorrentInfo) -> Void
     let onPeers: (TorrentInfo) -> Void
     let onSeedingLimits: (TorrentInfo) -> Void
-    let onRename: (TorrentInfo) -> Void
     let onLabels: (TorrentInfo) -> Void
     let onErrorDetails: (TorrentInfo) -> Void
     let onRetryConnection: () -> Void
@@ -82,7 +81,6 @@ struct TorrentListView: View {
                             onStats: { onStats(torrent) },
                             onPeers: { onPeers(torrent) },
                             onSeedingLimits: { onSeedingLimits(torrent) },
-                            onRename: { onRename(torrent) },
                             onLabels: { onLabels(torrent) },
                             onErrorDetails: { onErrorDetails(torrent) }
                     )
@@ -106,7 +104,8 @@ struct TorrentListView: View {
             }
 
         if let pending = pendingRemoval {
-                Color.black.opacity(0.25)
+                Color.black.opacity(0.3)
+                    .background(.ultraThinMaterial)
                     .ignoresSafeArea()
                     .onTapGesture {
                     pendingRemoval = nil
@@ -137,13 +136,7 @@ struct TorrentListView: View {
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity)
-                .background(.ultraThinMaterial)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                )
-                .shadow(radius: 10)
+                .liquidGlassOverlay()
             .padding(20)
             }
         }

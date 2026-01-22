@@ -24,7 +24,6 @@ struct ServiceSectionView: View {
     let onStats: (TorrentInfo) -> Void
     let onPeers: (TorrentInfo) -> Void
     let onSeedingLimits: (TorrentInfo) -> Void
-    let onRename: (TorrentInfo) -> Void
     let onLabels: (TorrentInfo) -> Void
     let onErrorDetails: (TorrentInfo) -> Void
     let onRetryConnection: () -> Void
@@ -94,7 +93,6 @@ struct ServiceSectionView: View {
                     onStats: { onStats(torrent) },
                     onPeers: { onPeers(torrent) },
                     onSeedingLimits: { onSeedingLimits(torrent) },
-                    onRename: { onRename(torrent) },
                     onLabels: { onLabels(torrent) },
                     onErrorDetails: { onErrorDetails(torrent) }
                 )

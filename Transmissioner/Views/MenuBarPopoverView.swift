@@ -15,7 +15,12 @@ struct MenuBarPopoverView: View {
     @State private var pendingRemoval: PendingRemoval?
 
     var body: AnyView {
-        let padded = AnyView(mainContent.padding(12))
+        let padded = AnyView(
+            mainContent
+                .padding(.horizontal, 12)
+                .padding(.top, 6)
+                .padding(.bottom, 12)
+        )
         let framed = AnyView(padded.frame(width: 600, height: 800, alignment: .top))
         let overlaid = AnyView(framed.overlay { overlayContent })
         let observed = AnyView(
@@ -70,7 +75,6 @@ struct MenuBarPopoverView: View {
     private var servicesContent: AnyView {
         AnyView(
             VStack(spacing: 12) {
-                FilterBarView(filterState: filterState, compactView: $preferences.compactView)
                 ServicesListView(
                     services: serviceStore.services,
                     allowInsecureTLS: preferences.allowInsecureTLS,
@@ -115,6 +119,7 @@ struct MenuBarPopoverView: View {
                 infoMenu
             }
             .buttonStyle(.bordered)
+            .controlSize(.small)
         )
     }
 
@@ -123,7 +128,8 @@ struct MenuBarPopoverView: View {
             Group {
                 if let pendingRemoval {
                     ZStack {
-                        Color.black.opacity(0.25)
+                        Color.black.opacity(0.3)
+                            .background(.ultraThinMaterial)
                             .ignoresSafeArea()
                             .onTapGesture {
                                 self.pendingRemoval = nil
@@ -160,18 +166,13 @@ struct MenuBarPopoverView: View {
                         }
                         .padding(16)
                         .frame(maxWidth: .infinity)
-                        .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                        )
-                        .shadow(radius: 10)
+                        .liquidGlassOverlay()
                         .padding(20)
                     }
                 } else if let addTorrentService {
                     ZStack {
-                        Color.black.opacity(0.25)
+                        Color.black.opacity(0.3)
+                            .background(.ultraThinMaterial)
                             .ignoresSafeArea()
                             .onTapGesture {
                                 self.addTorrentService = nil
@@ -188,13 +189,7 @@ struct MenuBarPopoverView: View {
                             },
                             onCancel: { self.addTorrentService = nil }
                         )
-                        .background(.ultraThinMaterial)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.gray.opacity(0.2), lineWidth: 1)
-                        )
-                        .shadow(radius: 10)
+                        .liquidGlassOverlay()
                     }
                 }
             }
@@ -203,18 +198,17 @@ struct MenuBarPopoverView: View {
 
     private var header: some View {
         HStack(spacing: 8) {
-            Label("Services", systemImage: "antenna.radiowaves.left.and.right")
-                .foregroundColor(.secondary)
-            Button("Manage") {
-                openSettings(tab: "services")
-            }
-            .buttonStyle(.borderless)
-            .controlSize(.small)
+            FilterBarView(filterState: filterState, compactView: $preferences.compactView)
+                .layoutPriority(1)
 
             Spacer()
 
             headerIconButton(systemName: "arrow.clockwise", help: "Refresh") {
                 Task { await viewModelStore.refreshAll() }
+            }
+
+            headerIconButton(systemName: "antenna.radiowaves.left.and.right", help: "Manage Services") {
+                openSettings(tab: "services")
             }
 
             headerIconButton(systemName: "gearshape", help: "Settings") {
@@ -225,6 +219,7 @@ struct MenuBarPopoverView: View {
                 NSApplication.shared.terminate(nil)
             }
         }
+        .controlSize(.small)
     }
 
     private var emptyState: some View {
@@ -303,6 +298,7 @@ struct MenuBarPopoverView: View {
             HStack(spacing: 8) {
                 TextField("Filter torrents", text: $filterState.searchText)
                     .textFieldStyle(.roundedBorder)
+                    .controlSize(.small)
 
                 Menu {
                     Picker("Status", selection: $filterState.statusFilter) {
@@ -313,6 +309,7 @@ struct MenuBarPopoverView: View {
                 } label: {
                     Label(filterState.statusFilter.label, systemImage: "line.3.horizontal.decrease.circle")
                 }
+                .controlSize(.small)
 
                 Menu {
                     Picker("Sort", selection: $filterState.sortOrder) {
@@ -323,6 +320,7 @@ struct MenuBarPopoverView: View {
                 } label: {
                     Label(filterState.sortOrder.label, systemImage: "arrow.up.arrow.down")
                 }
+                .controlSize(.small)
 
                 Button {
                     compactView.toggle()
@@ -330,6 +328,7 @@ struct MenuBarPopoverView: View {
                     Image(systemName: compactView ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                 }
                 .help(compactView ? "Switch to Detailed View" : "Switch to Compact View")
+                .controlSize(.small)
             }
         }
     }

@@ -8,9 +8,6 @@ struct PreferencesView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Preferences")
-                .font(.title2.weight(.semibold))
-
             Toggle("Auto refresh torrents", isOn: $autoRefresh)
 
             HStack {

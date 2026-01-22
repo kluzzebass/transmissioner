@@ -12,8 +12,6 @@ struct TorrentErrorDetailsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Error Details")
-                    .font(.title2.weight(.semibold))
                 Spacer()
                 if isLoading {
                     ProgressView()
@@ -47,6 +45,8 @@ struct TorrentErrorDetailsView: View {
                     Text(dateString(info?.activityDate))
                 }
             }
+
+            Spacer()
 
             HStack(spacing: 8) {
                 Button("Reannounce") { Task { await reannounce() } }

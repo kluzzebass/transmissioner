@@ -12,9 +12,9 @@ struct SessionInfoView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if isLoading {
-                HStack {
-                    Spacer()
+            HStack {
+                Spacer()
+                if isLoading {
                     ProgressView()
                         .controlSize(.small)
                 }
@@ -50,7 +50,6 @@ struct SessionInfoView: View {
         }
         .padding(20)
         .frame(maxHeight: .infinity, alignment: .topLeading)
-        .frame(width: 440, height: 300)
         .onAppear(perform: load)
         .onChange(of: appState.selectedServiceID) { _, _ in load() }
     }

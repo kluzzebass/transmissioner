@@ -44,7 +44,7 @@ struct TransmissionSettingsView: View {
                     Label(selectedService?.name ?? "No Service", systemImage: "antenna.radiowaves.left.and.right")
                         .lineLimit(1)
                         .truncationMode(.tail)
-                        .frame(maxWidth: 240, alignment: .leading)
+                        .frame(maxWidth: 180, alignment: .leading)
                 }
                 .controlSize(.small)
                 .disabled(serviceStore.services.isEmpty)
@@ -81,7 +81,6 @@ struct TransmissionSettingsView: View {
             .frame(height: 300)
         }
         .padding(16)
-        .frame(minWidth: 630)
         .onAppear(perform: loadSession)
         .onChange(of: appState.selectedServiceID) { _, _ in loadSession() }
         .onChange(of: appState.serverSettingsSection) { _, newValue in
@@ -160,7 +159,6 @@ struct TransmissionSettingsView: View {
                 LabeledContent("Blocklist URL") {
                     TextField("", text: $blocklistURL)
                         .textFieldStyle(.roundedBorder)
-                        .frame(minWidth: 260)
                 }
                 LabeledContent("Entries") {
                     Text("\(blocklistSize)")

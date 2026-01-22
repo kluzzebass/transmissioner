@@ -11,9 +11,9 @@ struct ConnectionDiagnosticsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if isTesting {
-                HStack {
-                    Spacer()
+            HStack {
+                Spacer()
+                if isTesting {
                     ProgressView()
                         .controlSize(.small)
                 }

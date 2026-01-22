@@ -16,8 +16,6 @@ struct SeedingLimitsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Seeding Limits")
-                    .font(.title2.weight(.semibold))
                 Spacer()
                 if isLoading {
                     ProgressView()
@@ -37,46 +35,65 @@ struct SeedingLimitsView: View {
                     .foregroundColor(.red)
             }
 
-            Form {
-                Section("Seed Ratio") {
-                    Picker("Mode", selection: $ratioMode) {
-                        ForEach(SeedLimitMode.allCases) { mode in
-                            Text(mode.label).tag(mode)
+            VStack(spacing: 12) {
+                GroupBox("Seed Ratio") {
+                    VStack(spacing: 10) {
+                        HStack {
+                            Text("Mode")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Picker("Mode", selection: $ratioMode) {
+                                ForEach(SeedLimitMode.allCases) { mode in
+                                    Text(mode.label).tag(mode)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 200)
                         }
-                    }
-                    .pickerStyle(.segmented)
 
-                    HStack {
-                        Text("Limit")
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        TextField("", value: $ratioLimit, formatter: NumberFormatter.decimal)
-                            .frame(width: 80)
-                            .textFieldStyle(.roundedBorder)
-                            .disabled(ratioMode != .custom)
+                        HStack {
+                            Text("Limit")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            TextField("", value: $ratioLimit, formatter: NumberFormatter.decimal)
+                                .frame(width: 80)
+                                .textFieldStyle(.roundedBorder)
+                                .disabled(ratioMode != .custom)
+                        }
                     }
                 }
 
-                Section("Idle Seeding") {
-                    Picker("Mode", selection: $idleMode) {
-                        ForEach(SeedLimitMode.allCases) { mode in
-                            Text(mode.label).tag(mode)
+                GroupBox("Idle Seeding") {
+                    VStack(spacing: 10) {
+                        HStack {
+                            Text("Mode")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Picker("Mode", selection: $idleMode) {
+                                ForEach(SeedLimitMode.allCases) { mode in
+                                    Text(mode.label).tag(mode)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                            .frame(width: 200)
                         }
-                    }
-                    .pickerStyle(.segmented)
 
-                    HStack {
-                        Text("Limit (minutes)")
-                            .foregroundColor(.secondary)
-                        Spacer()
-                        Stepper(value: $idleMinutes, in: 1...10_080, step: 5) {
-                            Text("\(idleMinutes)")
-                                .monospacedDigit()
+                        HStack {
+                            Text("Limit (minutes)")
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Stepper(value: $idleMinutes, in: 1...10_080, step: 5) {
+                                Text("\(idleMinutes)")
+                                    .monospacedDigit()
+                            }
+                            .disabled(idleMode != .custom)
                         }
-                        .disabled(idleMode != .custom)
                     }
                 }
             }
+            .frame(maxWidth: 440, alignment: .leading)
+
+            Spacer()
 
             HStack {
                 Spacer()
@@ -86,7 +103,7 @@ struct SeedingLimitsView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 480)
+        .frame(minWidth: 440)
         .onAppear(perform: load)
         .onChange(of: appState.seedingLimitsTorrentID) { _, _ in load() }
     }

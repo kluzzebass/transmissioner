@@ -14,8 +14,6 @@ struct PeersView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Peers")
-                    .font(.title2.weight(.semibold))
                 Spacer()
                 if isLoading {
                     ProgressView()
@@ -70,6 +68,8 @@ struct PeersView: View {
                     }
                 }
             }
+
+            Spacer()
 
             HStack {
                 Spacer()

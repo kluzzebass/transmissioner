@@ -57,6 +57,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 480, height: 200)
+        .windowResizability(.contentSize)
 
         Window("File Selection", id: "file-selection") {
             FileSelectionView()
@@ -64,6 +66,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 600, height: 520)
+        .windowResizability(.contentSize)
 
         Window("Session Info", id: "session-info") {
             SessionInfoView()
@@ -89,6 +93,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 600, height: 520)
+        .windowResizability(.contentSize)
 
         Window("Torrent Stats", id: "torrent-stats") {
             TorrentStatsView()
@@ -96,6 +102,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 460, height: 500)
+        .windowResizability(.contentSize)
 
         Window("Peers", id: "peers") {
             PeersView()
@@ -103,6 +111,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 640, height: 520)
+        .windowResizability(.contentSize)
 
         Window("Seeding Limits", id: "seeding-limits") {
             SeedingLimitsView()
@@ -110,13 +120,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
-
-        Window("Rename Torrent", id: "rename-torrent") {
-            RenameTorrentView()
-                .environmentObject(serviceStore)
-                .environmentObject(appState)
-                .environmentObject(preferences)
-        }
+        .defaultSize(width: 440, height: 320)
+        .windowResizability(.contentSize)
 
         Window("Labels", id: "labels") {
             LabelsView()
@@ -124,6 +129,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 460, height: 420)
+        .windowResizability(.contentSize)
 
         Window("Error Details", id: "error-details") {
             TorrentErrorDetailsView()
@@ -131,6 +138,8 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
+        .defaultSize(width: 480, height: 400)
+        .windowResizability(.contentSize)
 
         Window("Server Settings", id: "server-settings") {
             TransmissionSettingsView()
@@ -138,7 +147,7 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
-        .defaultSize(width: 630, height: 320)
+        .defaultSize(width: 360, height: 320)
         .windowResizability(.contentSize)
 
         Window("Connection Diagnostics", id: "connection-diagnostics") {

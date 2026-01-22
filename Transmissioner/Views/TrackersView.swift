@@ -14,8 +14,6 @@ struct TrackersView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Trackers")
-                    .font(.title2.weight(.semibold))
                 Spacer()
                 if isLoading {
                     ProgressView()
@@ -64,6 +62,8 @@ struct TrackersView: View {
                         .disabled(newTrackerURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
+
+            Spacer()
 
             HStack {
                 Spacer()

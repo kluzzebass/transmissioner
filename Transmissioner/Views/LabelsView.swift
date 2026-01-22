@@ -14,8 +14,6 @@ struct LabelsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Labels")
-                    .font(.title2.weight(.semibold))
                 Spacer()
                 if isLoading {
                     ProgressView()
@@ -63,6 +61,8 @@ struct LabelsView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(newLabel.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+
+            Spacer()
 
             HStack {
                 Spacer()

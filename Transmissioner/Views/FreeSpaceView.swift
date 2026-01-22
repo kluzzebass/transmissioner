@@ -13,9 +13,9 @@ struct FreeSpaceView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if isLoading {
-                HStack {
-                    Spacer()
+            HStack {
+                Spacer()
+                if isLoading {
                     ProgressView()
                         .controlSize(.small)
                 }
@@ -65,7 +65,6 @@ struct FreeSpaceView: View {
         }
         .padding(20)
         .frame(maxHeight: .infinity, alignment: .topLeading)
-        .frame(width: 440, height: 300)
     }
 
     private func lookup() async {

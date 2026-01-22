@@ -12,9 +12,6 @@ struct MoveLocationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Set Location")
-                .font(.title2.weight(.semibold))
-
             VStack(alignment: .leading, spacing: 8) {
                 Text("Destination path on the remote server")
                     .font(.headline)
@@ -30,6 +27,8 @@ struct MoveLocationView: View {
                     .font(.caption)
                     .foregroundColor(.red)
             }
+
+            Spacer()
 
             HStack {
                 Spacer()
