@@ -10,6 +10,7 @@ Menu bar client for Transmission on macOS.
 
 - Manage torrents: start/stop, verify, reannounce
 - Add torrents from magnet or file
+- Multiple Transmission servers with a grouped per-server view
 - Search, sort, filter by status
 - Remove torrents (with optional delete data)
 - Queue ordering and bandwidth priority
