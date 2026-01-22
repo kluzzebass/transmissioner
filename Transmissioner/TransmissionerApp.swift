@@ -120,7 +120,6 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
         }
-        .defaultSize(width: 440, height: 320)
         .windowResizability(.contentSize)
 
         Window("Labels", id: "labels") {

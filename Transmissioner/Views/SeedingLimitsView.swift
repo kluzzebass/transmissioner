@@ -48,7 +48,6 @@ struct SeedingLimitsView: View {
                                 }
                             }
                             .pickerStyle(.segmented)
-                            .frame(width: 200)
                         }
 
                         HStack {
@@ -56,8 +55,8 @@ struct SeedingLimitsView: View {
                                 .foregroundColor(.secondary)
                             Spacer()
                             TextField("", value: $ratioLimit, formatter: NumberFormatter.decimal)
-                                .frame(width: 80)
                                 .textFieldStyle(.roundedBorder)
+                                .frame(width: 80)
                                 .disabled(ratioMode != .custom)
                         }
                     }
@@ -75,7 +74,6 @@ struct SeedingLimitsView: View {
                                 }
                             }
                             .pickerStyle(.segmented)
-                            .frame(width: 200)
                         }
 
                         HStack {
@@ -91,7 +89,6 @@ struct SeedingLimitsView: View {
                     }
                 }
             }
-            .frame(maxWidth: 440, alignment: .leading)
 
             Spacer()
 
@@ -103,7 +100,6 @@ struct SeedingLimitsView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 440)
         .onAppear(perform: load)
         .onChange(of: appState.seedingLimitsTorrentID) { _, _ in load() }
     }
