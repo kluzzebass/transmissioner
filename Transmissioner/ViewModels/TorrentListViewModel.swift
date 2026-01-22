@@ -171,12 +171,17 @@ final class TorrentListViewModel: ObservableObject {
         await runAction(method: "torrent-remove", arguments: TorrentRemoveArguments(ids: ids, deleteLocalData: deleteData))
     }
 
-    func addTorrent(magnetLink: String, downloadDir: String?) async {
+    func addTorrent(magnetLink: String?, torrentData: Data?, downloadDir: String?) async {
         guard let client else { return }
         do {
+            let metainfo = torrentData?.base64EncodedString()
+            let filename = metainfo == nil ? magnetLink : nil
+            guard metainfo != nil || (filename?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false) else {
+                return
+            }
             let _: EmptyResponse = try await client.request(
                 method: "torrent-add",
-                arguments: TorrentAddArguments(filename: magnetLink, downloadDir: downloadDir)
+                arguments: TorrentAddArguments(filename: filename, metainfo: metainfo, downloadDir: downloadDir)
             )
             await refresh()
         } catch {

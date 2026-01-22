@@ -177,13 +177,13 @@ struct MenuBarPopoverView: View {
                                 self.addTorrentService = nil
                             }
 
-                        AddTorrentView(
-                            onAdd: { link, dir in
+                AddTorrentView(
+                    onAdd: { link, data, dir in
                                 let service = addTorrentService
                                 self.addTorrentService = nil
                                 Task {
                                     let viewModel = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
-                                    await viewModel.addTorrent(magnetLink: link, downloadDir: dir)
+                            await viewModel.addTorrent(magnetLink: link, torrentData: data, downloadDir: dir)
                                 }
                             },
                             onCancel: { self.addTorrentService = nil }

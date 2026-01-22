@@ -251,11 +251,13 @@ struct TorrentErrorInfo: Decodable {
 }
 
 struct TorrentAddArguments: Encodable {
-    let filename: String
+    let filename: String?
+    let metainfo: String?
     let downloadDir: String?
 
     enum CodingKeys: String, CodingKey {
         case filename
+        case metainfo
         case downloadDir = "download-dir"
     }
 }
