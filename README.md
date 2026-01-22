@@ -9,8 +9,10 @@ macOS menu bar client for remote controlling
 
 ## Features
 
+Transmissioner aims to expose as many Transmission RPC features as possible through a native macOS interface.
+
 - Manage torrents: start/stop, verify, reannounce
-- Add torrents from magnet or file
+- Add torrents from magnet link, URL, or `.torrent` file
 - Multiple Transmission servers with a grouped per-server view
 - Search, sort, filter by status
 - Remove torrents (with optional delete data)
