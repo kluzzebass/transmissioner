@@ -153,11 +153,11 @@ struct MenuBarPopoverView: View {
     private func controlsBarIconButton(systemName: String, help: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .frame(width: 16, height: 16)
+                .frame(width: 18, height: 18)
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
-        .frame(width: 28, height: 28)
+        .controlSize(.regular)
+        .frame(width: 32, height: 32)
         .help(help)
     }
 
@@ -338,7 +338,7 @@ struct MenuBarPopoverView: View {
             HStack(spacing: 8) {
                 TextField("Filter torrents", text: $filterState.searchText)
                     .textFieldStyle(.roundedBorder)
-                    .controlSize(.small)
+                    .controlSize(.regular)
 
                 Menu {
                     Picker("Status", selection: $filterState.statusFilter) {
@@ -349,7 +349,7 @@ struct MenuBarPopoverView: View {
                 } label: {
                     Label(filterState.statusFilter.label, systemImage: "line.3.horizontal.decrease.circle")
                 }
-                .controlSize(.small)
+                .controlSize(.regular)
 
                 Menu {
                     Picker("Sort", selection: $filterState.sortOrder) {
@@ -360,7 +360,7 @@ struct MenuBarPopoverView: View {
                 } label: {
                     Label(filterState.sortOrder.label, systemImage: "arrow.up.arrow.down")
                 }
-                .controlSize(.small)
+                .controlSize(.regular)
 
                 Button {
                     compactView.toggle()
@@ -368,7 +368,7 @@ struct MenuBarPopoverView: View {
                     Image(systemName: compactView ? "rectangle.compress.vertical" : "rectangle.expand.vertical")
                 }
                 .help(compactView ? "Switch to Detailed View" : "Switch to Compact View")
-                .controlSize(.small)
+                .controlSize(.regular)
             }
         }
     }
@@ -398,11 +398,11 @@ struct MenuBarPopoverView: View {
     private func headerIconButton(systemName: String, help: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: systemName)
-                .frame(width: 16, height: 16)
+                .frame(width: 18, height: 18)
         }
         .buttonStyle(.bordered)
-        .controlSize(.small)
-        .frame(width: 28, height: 28)
+        .controlSize(.regular)
+        .frame(width: 32, height: 32)
         .contentShape(Rectangle())
         .help(help)
     }
