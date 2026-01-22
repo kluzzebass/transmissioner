@@ -129,9 +129,9 @@ struct FileSelectionView: View {
 
         let wanted = rows.filter { $0.wanted }.map { $0.id }
         let unwanted = rows.filter { !$0.wanted }.map { $0.id }
-        let high = rows.filter { $0.priority == .high }.map { $0.id }
-        let normal = rows.filter { $0.priority == .normal }.map { $0.id }
-        let low = rows.filter { $0.priority == .low }.map { $0.id }
+        let high = rows.filter { $0.priority == .high && $0.wanted }.map { $0.id }
+        let normal = rows.filter { $0.priority == .normal && $0.wanted }.map { $0.id }
+        let low = rows.filter { $0.priority == .low && $0.wanted }.map { $0.id }
 
         isLoading = true
         defer { isLoading = false }
@@ -143,11 +143,11 @@ struct FileSelectionView: View {
             )
             let args = TorrentSetFilesArguments(
                 ids: [torrentID],
-                filesWanted: wanted,
-                filesUnwanted: unwanted,
-                priorityHigh: high,
-                priorityNormal: normal,
-                priorityLow: low
+                filesWanted: wanted.isEmpty ? nil : wanted,
+                filesUnwanted: unwanted.isEmpty ? nil : unwanted,
+                priorityHigh: high.isEmpty ? nil : high,
+                priorityNormal: normal.isEmpty ? nil : normal,
+                priorityLow: low.isEmpty ? nil : low
             )
             let _: EmptyResponse = try await client.request(
                 method: "torrent-set",

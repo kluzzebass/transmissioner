@@ -155,11 +155,11 @@ struct TorrentSetArguments: Encodable {
 
 struct TorrentSetFilesArguments: Encodable {
     let ids: [Int]
-    let filesWanted: [Int]
-    let filesUnwanted: [Int]
-    let priorityHigh: [Int]
-    let priorityNormal: [Int]
-    let priorityLow: [Int]
+    let filesWanted: [Int]?
+    let filesUnwanted: [Int]?
+    let priorityHigh: [Int]?
+    let priorityNormal: [Int]?
+    let priorityLow: [Int]?
 
     enum CodingKeys: String, CodingKey {
         case ids
@@ -168,6 +168,26 @@ struct TorrentSetFilesArguments: Encodable {
         case priorityHigh = "priority-high"
         case priorityNormal = "priority-normal"
         case priorityLow = "priority-low"
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(ids, forKey: .ids)
+        if let filesWanted = filesWanted, !filesWanted.isEmpty {
+            try container.encode(filesWanted, forKey: .filesWanted)
+        }
+        if let filesUnwanted = filesUnwanted, !filesUnwanted.isEmpty {
+            try container.encode(filesUnwanted, forKey: .filesUnwanted)
+        }
+        if let priorityHigh = priorityHigh, !priorityHigh.isEmpty {
+            try container.encode(priorityHigh, forKey: .priorityHigh)
+        }
+        if let priorityNormal = priorityNormal, !priorityNormal.isEmpty {
+            try container.encode(priorityNormal, forKey: .priorityNormal)
+        }
+        if let priorityLow = priorityLow, !priorityLow.isEmpty {
+            try container.encode(priorityLow, forKey: .priorityLow)
+        }
     }
 }
 
