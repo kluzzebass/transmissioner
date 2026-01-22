@@ -93,7 +93,7 @@ cask "transmissioner" do
 
   url "https://github.com/$GITHUB_REPO/releases/download/v#{version.before_comma}/$ZIP_NAME"
   name "Transmissioner"
-  desc "Menu bar Transmission client for macOS"
+  desc "Menu bar client for remote controlling Transmission on macOS"
   homepage "https://github.com/$GITHUB_REPO"
 
   app "Transmissioner.app"
