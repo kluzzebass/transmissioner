@@ -319,7 +319,7 @@ struct MenuBarPopoverView: View {
     }
 
     private var refreshTimer: Publishers.Autoconnect<Timer.TimerPublisher> {
-        Timer.publish(every: max(5, preferences.autoRefreshInterval), on: .main, in: .common)
+        Timer.publish(every: max(1, preferences.autoRefreshInterval), on: .main, in: .common)
             .autoconnect()
     }
 

@@ -12,11 +12,13 @@ struct PreferencesView: View {
 
             HStack {
                 Text("Refresh interval")
-                Stepper(value: $autoRefreshInterval, in: 5...60, step: 5) {
-                    Text("\(Int(autoRefreshInterval)) seconds")
-                        .frame(minWidth: 120, alignment: .leading)
+                Picker("", selection: $autoRefreshInterval) {
+                    ForEach([1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60], id: \.self) { value in
+                        Text("\(value) seconds").tag(Double(value))
+                    }
                 }
                 .disabled(!autoRefresh)
+                .frame(minWidth: 120)
             }
 
             Divider()

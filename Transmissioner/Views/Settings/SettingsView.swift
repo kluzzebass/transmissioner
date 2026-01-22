@@ -61,7 +61,7 @@ struct SettingsView: View {
             .padding(.horizontal, 16)
         }
         .padding(.bottom, 12)
-        .frame(width: 520, height: 340)
+        .frame(minWidth: 520, minHeight: 340)
         .onAppear {
             resetDrafts()
             if let requested = appState.settingsTab {
