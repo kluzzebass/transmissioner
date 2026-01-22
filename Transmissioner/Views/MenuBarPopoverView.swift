@@ -91,36 +91,74 @@ struct MenuBarPopoverView: View {
     private var controlsBar: AnyView {
         AnyView(
             HStack(spacing: 8) {
-                Button {
+                controlsBarIconButton(systemName: "play.fill", help: "Start All") {
                     Task { await viewModelStore.startAll() }
-                } label: {
-                    Image(systemName: "play.fill")
                 }
-                .help("Start All")
 
-                Button {
+                controlsBarIconButton(systemName: "pause.fill", help: "Stop All") {
                     Task { await viewModelStore.stopAll() }
-                } label: {
-                    Image(systemName: "pause.fill")
                 }
-                .help("Stop All")
 
-                Button {
+                controlsBarIconButton(
+                    systemName: viewModelStore.anyAltSpeedEnabled ? "tortoise.fill" : "tortoise",
+                    help: "Temporary Speed Limit"
+                ) {
                     Task { await viewModelStore.setAltSpeed(enabled: !viewModelStore.allAltSpeedEnabled) }
-                } label: {
-                    Image(systemName: viewModelStore.anyAltSpeedEnabled ? "tortoise.fill" : "tortoise")
-                        .foregroundStyle(viewModelStore.anyAltSpeedEnabled ? Color.green : Color.primary)
                 }
-                .help("Temporary Speed Limit")
+                .foregroundStyle(viewModelStore.anyAltSpeedEnabled ? Color.green : Color.primary)
 
-                serverSettingsMenu
+                controlsBarIconButton(systemName: "gearshape", help: "Session Settings") {
+                    openServerSettings(section: "session")
+                }
+                .disabled(selectedService == nil)
+
+                controlsBarIconButton(systemName: "speedometer", help: "Bandwidth Limits") {
+                    openServerSettings(section: "bandwidth")
+                }
+                .disabled(selectedService == nil)
+
+                controlsBarIconButton(systemName: "shield", help: "Blocklist") {
+                    openServerSettings(section: "blocklist")
+                }
+                .disabled(selectedService == nil)
+
+                controlsBarIconButton(systemName: "network", help: "Port Settings") {
+                    openServerSettings(section: "port")
+                }
+                .disabled(selectedService == nil)
 
                 Spacer()
-                infoMenu
+
+                controlsBarIconButton(systemName: "info.circle", help: "Session Info") {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "session-info")
+                }
+                .disabled(selectedService == nil)
+
+                controlsBarIconButton(systemName: "externaldrive", help: "Free Space") {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "free-space")
+                }
+                .disabled(selectedService == nil)
+
+                controlsBarIconButton(systemName: "stethoscope", help: "Connection Diagnostics") {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "connection-diagnostics")
+                }
+                .disabled(selectedService == nil)
             }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
         )
+    }
+
+    private func controlsBarIconButton(systemName: String, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .frame(width: 16, height: 16)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .frame(width: 28, height: 28)
+        .help(help)
     }
 
     private var overlayContent: AnyView {
@@ -252,6 +290,7 @@ struct MenuBarPopoverView: View {
             }
         } label: {
             Image(systemName: "info.circle")
+                .frame(width: 16, height: 16)
         }
         .help("Info")
         .disabled(selectedService == nil)
@@ -265,6 +304,7 @@ struct MenuBarPopoverView: View {
             Button("Port Settings") { openServerSettings(section: "port") }
         } label: {
             Image(systemName: "gearshape.2")
+                .frame(width: 16, height: 16)
         }
         .help("Server Settings")
         .disabled(selectedService == nil)

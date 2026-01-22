@@ -32,6 +32,10 @@ struct TorrentRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: compact ? 4 : 6) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
+                torrentIcon
+                    .foregroundColor(.secondary)
+                    .frame(width: 16)
+                
                 Text(torrent.name)
                     .font(.headline)
                     .lineLimit(1)
@@ -208,6 +212,33 @@ struct TorrentRowView: View {
     private func priorityIcon(_ value: Int) -> String {
         guard let current = torrent.bandwidthPriority else { return "circle" }
         return current == value ? "checkmark.circle.fill" : "circle"
+    }
+
+    private var torrentIcon: some View {
+        Group {
+            if isMagnetRetrievingMetadata {
+                Image(systemName: "magnet")
+                    .foregroundColor(.red)
+            } else if isSingleFile {
+                Image(systemName: "doc")
+            } else {
+                Image(systemName: "folder")
+            }
+        }
+    }
+
+    private var isMagnetRetrievingMetadata: Bool {
+        // Magnet links retrieving metadata typically have very low percentDone
+        // and the name is often a hash (40 character hex string)
+        let hexChars = CharacterSet(charactersIn: "0123456789abcdefABCDEF")
+        return torrent.percentDone < 0.01 && torrent.name.count == 40 && torrent.name.unicodeScalars.allSatisfy { hexChars.contains($0) }
+    }
+
+    private var isSingleFile: Bool {
+        // Heuristic: common single-file extensions
+        let singleFileExtensions = ["iso", "zip", "rar", "7z", "tar", "gz", "bz2", "xz", "dmg", "pkg", "deb", "rpm", "exe", "msi", "app", "apk"]
+        let nameLower = torrent.name.lowercased()
+        return singleFileExtensions.contains { nameLower.hasSuffix(".\($0)") }
     }
 
     private var progressBar: some View {
