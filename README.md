@@ -1,8 +1,10 @@
 # Transmissioner
 
+![AI SLOP 04](https://raw.githubusercontent.com/kluzzebass/ai-slop/main/ai-slop-04-gooey.svg)
+
 Menu bar client for Transmission on macOS.
 
-![AI SLOP 04](https://raw.githubusercontent.com/kluzzebass/ai-slop/main/ai-slop-04-gooey.svg)
+![Screenshot](./assets/screenshot.png)
 
 ## Features
 
