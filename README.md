@@ -2,7 +2,8 @@
 
 ![AI SLOP 04](https://raw.githubusercontent.com/kluzzebass/ai-slop/main/ai-slop-04-gooey.svg)
 
-Menu bar client for remote controlling [Transmission](https://transmissionbt.com/) on macOS.
+macOS menu bar client for remote controlling
+[Transmission](https://transmissionbt.com/) servers.
 
 ![Screenshot](./assets/screenshot.png)
 
