@@ -30,7 +30,7 @@ final class PreferencesStore: ObservableObject {
         }
 
         let storedInterval = defaults.double(forKey: intervalKey)
-        autoRefreshInterval = storedInterval > 0 ? storedInterval : 20
+        autoRefreshInterval = storedInterval > 0 ? storedInterval : 5
 
         if defaults.object(forKey: compactViewKey) != nil {
             compactView = defaults.bool(forKey: compactViewKey)

@@ -6,15 +6,19 @@ struct TransmissionerApp: App {
     @StateObject private var serviceStore = ServiceStore()
     @StateObject private var appState = AppState()
     @StateObject private var preferences = PreferencesStore()
+    @StateObject private var viewModelStore = ServiceViewModelStore()
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.openWindow) private var openWindow
 
     var body: some Scene {
-        MenuBarExtra("Transmissioner", image: "MenuBarIcon") {
+        MenuBarExtra {
             MenuBarPopoverView()
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
                 .environmentObject(preferences)
+                .environmentObject(viewModelStore)
+        } label: {
+            MenuBarIconView(viewModelStore: viewModelStore)
         }
         .menuBarExtraStyle(.window)
         .commands {

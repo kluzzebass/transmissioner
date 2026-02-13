@@ -8,7 +8,7 @@ struct SettingsView: View {
 
     @State private var selectedTab = "preferences"
     @State private var draftAutoRefresh = true
-    @State private var draftAutoRefreshInterval = 20.0
+    @State private var draftAutoRefreshInterval = 5.0
     @State private var draftAllowInsecureTLS = false
     @State private var draftRunAtLogin = false
     @State private var draftServices: [ServiceConfig] = []

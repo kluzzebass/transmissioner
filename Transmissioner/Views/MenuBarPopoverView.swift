@@ -6,8 +6,8 @@ struct MenuBarPopoverView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
     @EnvironmentObject private var appState: AppState
     @EnvironmentObject private var preferences: PreferencesStore
+    @EnvironmentObject private var viewModelStore: ServiceViewModelStore
     @Environment(\.openWindow) private var openWindow
-    @StateObject private var viewModelStore = ServiceViewModelStore()
     @State private var addTorrentService: ServiceConfig?
     @State private var suppressRefreshUntil = Date.distantPast
     @State private var isMenuTracking = false
