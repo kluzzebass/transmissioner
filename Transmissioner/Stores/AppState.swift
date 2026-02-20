@@ -18,6 +18,8 @@ final class AppState: ObservableObject {
     @Published var serverSettingsSection: String?
     @Published var settingsTab: String?
     @Published var pendingMagnetLink: String?
+    @Published var pendingTorrentFileData: Data?
+    @Published var pendingTorrentFileURL: URL?
 
     private let defaults = UserDefaults.standard
     private let selectedServiceKey = "selectedServiceID"

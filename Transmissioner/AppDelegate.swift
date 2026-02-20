@@ -65,8 +65,43 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 } else {
                     logger.warning("⚠️ AppState not available yet - will be picked up when view loads")
                 }
+            } else if url.scheme == "file" && url.pathExtension.lowercased() == "torrent" {
+                // Handle .torrent file
+                logger.info("📄 Processing torrent file: \(url.lastPathComponent)")
+                
+                // Read the file data
+                guard let fileData = try? Data(contentsOf: url) else {
+                    logger.error("❌ Failed to read torrent file data from: \(url.path)")
+                    continue
+                }
+                
+                logger.info("📄 Read \(fileData.count) bytes from torrent file")
+                
+                // Store file URL in UserDefaults as fallback
+                UserDefaults.standard.set(url.path, forKey: "pendingTorrentFileURL")
+                logger.info("📄 Stored torrent file path in UserDefaults as fallback")
+                
+                // Post notification
+                NotificationCenter.default.post(
+                    name: .addTorrentFile,
+                    object: nil,
+                    userInfo: [
+                        Notification.torrentFileDataKey: fileData,
+                        Notification.torrentFileURLKey: url
+                    ]
+                )
+                logger.info("📄 Posted addTorrentFile notification")
+                
+                // Also store directly in AppState if available
+                if let appState = appState {
+                    logger.info("📄 Also storing torrent file in AppState")
+                    appState.pendingTorrentFileData = fileData
+                    appState.pendingTorrentFileURL = url
+                } else {
+                    logger.warning("⚠️ AppState not available yet - will be picked up when view loads")
+                }
             } else {
-                logger.warning("⚠️ Received non-magnet URL: \(url.absoluteString)")
+                logger.warning("⚠️ Received unsupported URL: \(url.absoluteString)")
             }
         }
     }

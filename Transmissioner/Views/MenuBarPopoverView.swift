@@ -42,6 +42,22 @@ struct MenuBarPopoverView: View {
                     } else {
                         processPendingMagnetLink()
                     }
+                    
+                    // Check UserDefaults for pending torrent file (in case app was launched via file)
+                    if let torrentFilePath = UserDefaults.standard.string(forKey: "pendingTorrentFileURL"), !torrentFilePath.isEmpty {
+                        logger.info("📄 Found pending torrent file in UserDefaults: \(torrentFilePath)")
+                        UserDefaults.standard.removeObject(forKey: "pendingTorrentFileURL")
+                        let fileURL = URL(fileURLWithPath: torrentFilePath)
+                        if let fileData = try? Data(contentsOf: fileURL) {
+                            appState.pendingTorrentFileData = fileData
+                            appState.pendingTorrentFileURL = fileURL
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                self.processPendingTorrentFile()
+                            }
+                        }
+                    } else {
+                        processPendingTorrentFile()
+                    }
                 }
                 .onChange(of: preferences.allowInsecureTLS) { _, _ in
                     configureServices()
@@ -82,17 +98,44 @@ struct MenuBarPopoverView: View {
                         processPendingMagnetLink()
                     }
                 }
+                .onReceive(NotificationCenter.default.publisher(for: .addTorrentFile)) { notification in
+                    logger.info("📄 Notification received in MenuBarPopoverView for torrent file")
+                    guard let fileData = notification.userInfo?[Notification.torrentFileDataKey] as? Data,
+                          let fileURL = notification.userInfo?[Notification.torrentFileURLKey] as? URL else {
+                        logger.warning("⚠️ Notification received but no torrent file data/URL in userInfo")
+                        return
+                    }
+                    logger.info("📄 Notification received with torrent file: \(fileURL.lastPathComponent)")
+                    logger.info("🔍 Service count at notification time: \(serviceStore.services.count)")
+                    logger.info("🔍 Selected service: \(selectedService?.name ?? "nil")")
+                    
+                    // Store the torrent file to process when services are ready
+                    appState.pendingTorrentFileData = fileData
+                    appState.pendingTorrentFileURL = fileURL
+                    
+                    // Try to process immediately, or after a delay if services aren't ready
+                    if serviceStore.services.isEmpty {
+                        logger.info("🔍 Services not ready yet, will retry in 1 second")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            self.processPendingTorrentFile()
+                        }
+                    } else {
+                        processPendingTorrentFile()
+                    }
+                }
                 .onChange(of: serviceStore.services) { oldServices, newServices in
                     logger.info("🔍 serviceStore.services changed: \(oldServices.count) -> \(newServices.count)")
                     configureServices()
                     // Only process if we actually have services now (not just on initial empty load)
                     if !newServices.isEmpty {
                         processPendingMagnetLink()
+                        processPendingTorrentFile()
                     }
                 }
                 .onChange(of: appState.selectedServiceID) { _, _ in
                     configureServices()
                     processPendingMagnetLink()
+                    processPendingTorrentFile()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .toggleCompactView)) { _ in
                     preferences.compactView.toggle()
@@ -466,8 +509,9 @@ struct MenuBarPopoverView: View {
         for service in serviceStore.services {
             _ = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
         }
-        // Try to process any pending magnet link after configuring services
+        // Try to process any pending magnet link or torrent file after configuring services
         processPendingMagnetLink()
+        processPendingTorrentFile()
     }
     
     private func processPendingMagnetLink() {
@@ -508,6 +552,48 @@ struct MenuBarPopoverView: View {
             logger.info("🔍 Calling addTorrent with magnet link")
             await viewModel.addTorrent(magnetLink: magnetLink, torrentData: nil, downloadDir: nil)
             logger.info("✅ Magnet link added to Transmission")
+        }
+    }
+    
+    private func processPendingTorrentFile() {
+        guard let torrentData = appState.pendingTorrentFileData else { return }
+        
+        logger.info("📄 processPendingTorrentFile called")
+        logger.info("📄 Torrent file size: \(torrentData.count) bytes")
+        logger.info("🔍 Services count: \(serviceStore.services.count)")
+        logger.info("🔍 Selected service ID: \(appState.selectedServiceID?.uuidString ?? "nil")")
+        
+        guard !serviceStore.services.isEmpty else {
+            logger.info("⏳ Services not ready yet - keeping torrent file pending")
+            // Keep the pending file so we can retry later when services are configured
+            return
+        }
+        guard let service = selectedService else {
+            logger.info("⚠️ Services exist but none selected - selecting first service")
+            if let firstService = serviceStore.services.first {
+                appState.selectedServiceID = firstService.id
+                // Retry processing after selecting service
+                DispatchQueue.main.async {
+                    self.processPendingTorrentFile()
+                }
+            }
+            return
+        }
+        
+        logger.info("✅ Processing torrent file for service: \(service.name)")
+        
+        // Clear the pending file immediately to prevent duplicate processing
+        appState.pendingTorrentFileData = nil
+        appState.pendingTorrentFileURL = nil
+        UserDefaults.standard.removeObject(forKey: "pendingTorrentFileURL")
+        
+        // Add the torrent file to the selected service
+        Task {
+            logger.info("🔍 Creating viewModel for service: \(service.name)")
+            let viewModel = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
+            logger.info("🔍 Calling addTorrent with torrent file data")
+            await viewModel.addTorrent(magnetLink: nil, torrentData: torrentData, downloadDir: nil)
+            logger.info("✅ Torrent file added to Transmission")
         }
     }
 

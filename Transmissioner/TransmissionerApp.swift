@@ -31,6 +31,12 @@ struct TransmissionerApp: App {
                         appState.pendingMagnetLink = magnetLink
                         // Don't activate the app - let it process silently
                         // Activating might cause SwiftUI to auto-open windows
+                    } else if url.scheme == "file" && url.pathExtension.lowercased() == "torrent" {
+                        logger.info("📄 SwiftUI onOpenURL received torrent file: \(url.lastPathComponent)")
+                        if let fileData = try? Data(contentsOf: url) {
+                            appState.pendingTorrentFileData = fileData
+                            appState.pendingTorrentFileURL = url
+                        }
                     }
                 }
         } label: {
