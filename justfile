@@ -27,7 +27,30 @@ release bump:
     set -euo pipefail
     next=$(svu {{ bump }})
     echo "Releasing ${next}"
+    
+    # Update MARKETING_VERSION in project.pbxproj for both Debug and Release configurations
+    # Remove the 'v' prefix if present for MARKETING_VERSION (Xcode expects just the version number)
+    version_number="${next#v}"
+    
+    # Update MARKETING_VERSION in both Debug and Release configurations
+    # Using a more specific pattern to avoid matching other version strings
+    sed -i '' "s/MARKETING_VERSION = [0-9.]*;/MARKETING_VERSION = ${version_number};/g" {{project}}/project.pbxproj
+    
+    echo "Updated MARKETING_VERSION to ${version_number} in project.pbxproj"
+    
+    # Verify the change
+    if ! grep -q "MARKETING_VERSION = ${version_number};" {{project}}/project.pbxproj; then
+        echo "Error: Failed to update MARKETING_VERSION" >&2
+        exit 1
+    fi
+    
+    # Commit the version change
+    git add {{project}}/project.pbxproj
+    git commit -m "Bump version to ${next}"
+    
+    # Create and push tag
     git tag -a "${next}" -m "Release ${next}"
+    git push origin main
     git push origin "${next}"
 
 # Open the Xcode project.
