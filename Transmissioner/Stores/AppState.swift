@@ -17,6 +17,7 @@ final class AppState: ObservableObject {
     @Published var errorDetailsTorrentID: Int?
     @Published var serverSettingsSection: String?
     @Published var settingsTab: String?
+    @Published var pendingMagnetLink: String?
 
     private let defaults = UserDefaults.standard
     private let selectedServiceKey = "selectedServiceID"

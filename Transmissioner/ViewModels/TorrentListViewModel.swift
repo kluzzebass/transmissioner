@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import SwiftUI
+import OSLog
 
 @MainActor
 final class TorrentListViewModel: ObservableObject {
@@ -16,6 +17,7 @@ final class TorrentListViewModel: ObservableObject {
 
     private var client: TransmissionRPCClient?
     private var currentConfig: ServiceConfig?
+    private let logger = Logger(subsystem: "org.radical.Transmissioner", category: "TorrentListViewModel")
 
     func configure(with config: ServiceConfig?) {
         guard currentConfig != config else { return }
@@ -172,19 +174,31 @@ final class TorrentListViewModel: ObservableObject {
     }
 
     func addTorrent(magnetLink: String?, torrentData: Data?, downloadDir: String?) async {
-        guard let client else { return }
+        logger.info("🔍 TorrentListViewModel.addTorrent called")
+        logger.info("🔍 magnetLink: \(magnetLink?.prefix(50) ?? "nil")...")
+        logger.info("🔍 torrentData: \(torrentData != nil ? "present" : "nil")")
+        logger.info("🔍 client: \(self.client != nil ? "present" : "nil")")
+        
+        guard let client = self.client else {
+            logger.error("❌ No client available - cannot add torrent")
+            return
+        }
         do {
             let metainfo = torrentData?.base64EncodedString()
             let filename = metainfo == nil ? magnetLink : nil
             guard metainfo != nil || (filename?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false) else {
+                logger.error("❌ Invalid magnet link or torrent data")
                 return
             }
+            logger.info("🔍 Sending torrent-add request to Transmission")
             let _: EmptyResponse = try await client.request(
                 method: "torrent-add",
                 arguments: TorrentAddArguments(filename: filename, metainfo: metainfo, downloadDir: downloadDir)
             )
+            logger.info("✅ Torrent-add request succeeded")
             await refresh()
         } catch {
+            logger.error("❌ Error adding torrent: \(error.localizedDescription)")
             lastError = error.localizedDescription
         }
     }

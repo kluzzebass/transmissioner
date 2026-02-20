@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import OSLog
 
 @main
 struct TransmissionerApp: App {
@@ -9,6 +10,7 @@ struct TransmissionerApp: App {
     @StateObject private var viewModelStore = ServiceViewModelStore()
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @Environment(\.openWindow) private var openWindow
+    private let logger = Logger(subsystem: "org.radical.Transmissioner", category: "TransmissionerApp")
 
     var body: some Scene {
         MenuBarExtra {
@@ -17,6 +19,20 @@ struct TransmissionerApp: App {
                 .environmentObject(appState)
                 .environmentObject(preferences)
                 .environmentObject(viewModelStore)
+                .onAppear {
+                    // Give AppDelegate access to AppState
+                    appDelegate.appState = appState
+                }
+                .onOpenURL { url in
+                    logger.info("🔗 SwiftUI onOpenURL received: \(url.absoluteString)")
+                    if url.scheme == "magnet" {
+                        let magnetLink = url.absoluteString
+                        logger.info("🔗 Storing magnet link in AppState via onOpenURL: \(magnetLink.prefix(50))...")
+                        appState.pendingMagnetLink = magnetLink
+                        // Don't activate the app - let it process silently
+                        // Activating might cause SwiftUI to auto-open windows
+                    }
+                }
         } label: {
             MenuBarIconView(viewModelStore: viewModelStore)
         }
@@ -24,6 +40,7 @@ struct TransmissionerApp: App {
         .commands {
             CommandMenu("Transmissioner") {
                 Button("Open Settings") {
+                    logger.info("🔧 Command menu: Open Settings clicked")
                     NSApp.activate(ignoringOtherApps: true)
                     openWindow(id: "settings")
                 }
@@ -51,9 +68,14 @@ struct TransmissionerApp: App {
                 .environmentObject(serviceStore)
                 .environmentObject(appState)
                 .environmentObject(preferences)
+                .onAppear {
+                    logger.info("🔧 Settings window appeared - stack: \(Thread.callStackSymbols.prefix(5).joined(separator: " -> "))")
+                }
         }
         .defaultSize(width: 520, height: 340)
         .windowResizability(.contentSize)
+        .defaultLaunchBehavior(.suppressed)
+        .restorationBehavior(.disabled)
 
         Window("Set Location", id: "set-location") {
             MoveLocationView()

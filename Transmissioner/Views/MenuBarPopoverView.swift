@@ -1,6 +1,7 @@
 import AppKit
 import Combine
 import SwiftUI
+import OSLog
 
 struct MenuBarPopoverView: View {
     @EnvironmentObject private var serviceStore: ServiceStore
@@ -13,6 +14,7 @@ struct MenuBarPopoverView: View {
     @State private var isMenuTracking = false
     @StateObject private var filterState = FilterState()
     @State private var pendingRemoval: PendingRemoval?
+    private let logger = Logger(subsystem: "org.radical.Transmissioner", category: "MenuBarPopoverView")
 
     var body: AnyView {
         let padded = AnyView(
@@ -25,12 +27,23 @@ struct MenuBarPopoverView: View {
         let overlaid = AnyView(framed.overlay { overlayContent })
         let observed = AnyView(
             overlaid
-                .onAppear(perform: configureServices)
-                .onChange(of: appState.selectedServiceID) { _, _ in configureServices() }
-                .onChange(of: preferences.allowInsecureTLS) { _, _ in
+                .onAppear {
+                    logger.info("🔍 MenuBarPopoverView onAppear called")
                     configureServices()
+                    // Check UserDefaults for pending magnet link (in case app was launched via URL)
+                    if let pendingLink = UserDefaults.standard.string(forKey: "pendingMagnetLink"), !pendingLink.isEmpty {
+                        logger.info("🔗 Found pending magnet link in UserDefaults: \(pendingLink.prefix(50))...")
+                        UserDefaults.standard.removeObject(forKey: "pendingMagnetLink")
+                        appState.pendingMagnetLink = pendingLink
+                        // Process after a short delay to ensure services are configured
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            self.processPendingMagnetLink()
+                        }
+                    } else {
+                        processPendingMagnetLink()
+                    }
                 }
-                .onChange(of: serviceStore.services) { _, _ in
+                .onChange(of: preferences.allowInsecureTLS) { _, _ in
                     configureServices()
                 }
                 .onReceive(refreshTimer) { _ in
@@ -45,6 +58,41 @@ struct MenuBarPopoverView: View {
                     if let service = selectedService {
                         addTorrentService = service
                     }
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .addMagnetLink)) { notification in
+                    logger.info("🔗 Notification received in MenuBarPopoverView")
+                    guard let magnetLink = notification.userInfo?[Notification.magnetLinkKey] as? String else {
+                        logger.warning("⚠️ Notification received but no magnet link in userInfo")
+                        return
+                    }
+                    logger.info("🔗 Notification received with magnet link: \(magnetLink.prefix(50))...")
+                    logger.info("🔍 Service count at notification time: \(serviceStore.services.count)")
+                    logger.info("🔍 Selected service: \(selectedService?.name ?? "nil")")
+                    
+                    // Store the magnet link to process when services are ready
+                    appState.pendingMagnetLink = magnetLink
+                    
+                    // Try to process immediately, or after a delay if services aren't ready
+                    if serviceStore.services.isEmpty {
+                        logger.info("🔍 Services not ready yet, will retry in 1 second")
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            self.processPendingMagnetLink()
+                        }
+                    } else {
+                        processPendingMagnetLink()
+                    }
+                }
+                .onChange(of: serviceStore.services) { oldServices, newServices in
+                    logger.info("🔍 serviceStore.services changed: \(oldServices.count) -> \(newServices.count)")
+                    configureServices()
+                    // Only process if we actually have services now (not just on initial empty load)
+                    if !newServices.isEmpty {
+                        processPendingMagnetLink()
+                    }
+                }
+                .onChange(of: appState.selectedServiceID) { _, _ in
+                    configureServices()
+                    processPendingMagnetLink()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .toggleCompactView)) { _ in
                     preferences.compactView.toggle()
@@ -65,8 +113,14 @@ struct MenuBarPopoverView: View {
                 header
                 if serviceStore.services.isEmpty {
                     emptyState
+                        .onAppear {
+                            logger.info("🔍 Showing empty state - services count: \(serviceStore.services.count)")
+                        }
                 } else {
                     servicesContent
+                        .onAppear {
+                            logger.info("🔍 Showing services content - services count: \(serviceStore.services.count)")
+                        }
                 }
             }
         )
@@ -268,6 +322,7 @@ struct MenuBarPopoverView: View {
                 .font(.subheadline)
                 .foregroundColor(.secondary)
             Button("Open Settings") {
+                logger.info("🔧 Empty state: Open Settings button clicked")
                 openSettings(tab: "services")
             }
         }
@@ -381,9 +436,54 @@ struct MenuBarPopoverView: View {
         for service in serviceStore.services {
             _ = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
         }
+        // Try to process any pending magnet link after configuring services
+        processPendingMagnetLink()
+    }
+    
+    private func processPendingMagnetLink() {
+        guard let magnetLink = appState.pendingMagnetLink else { return }
+        
+        logger.info("🔍 processPendingMagnetLink called with: \(magnetLink.prefix(50))...")
+        logger.info("🔍 Services count: \(serviceStore.services.count)")
+        logger.info("🔍 Selected service ID: \(appState.selectedServiceID?.uuidString ?? "nil")")
+        
+        guard !serviceStore.services.isEmpty else {
+            logger.info("⏳ Services not ready yet - keeping magnet link pending")
+            // Keep the pending link so we can retry later when services are configured
+            // Don't open Settings automatically - user can add services manually if needed
+            return
+        }
+        guard let service = selectedService else {
+            logger.info("⚠️ Services exist but none selected - selecting first service")
+            if let firstService = serviceStore.services.first {
+                appState.selectedServiceID = firstService.id
+                // Retry processing after selecting service
+                DispatchQueue.main.async {
+                    self.processPendingMagnetLink()
+                }
+            }
+            return
+        }
+        
+        logger.info("✅ Processing magnet link for service: \(service.name)")
+        
+        // Clear the pending link immediately to prevent duplicate processing
+        appState.pendingMagnetLink = nil
+        UserDefaults.standard.removeObject(forKey: "pendingMagnetLink")
+        
+        // Add the magnet link to the selected service
+        Task {
+            logger.info("🔍 Creating viewModel for service: \(service.name)")
+            let viewModel = viewModelStore.viewModel(for: service, allowInsecureTLS: preferences.allowInsecureTLS)
+            logger.info("🔍 Calling addTorrent with magnet link")
+            await viewModel.addTorrent(magnetLink: magnetLink, torrentData: nil, downloadDir: nil)
+            logger.info("✅ Magnet link added to Transmission")
+        }
     }
 
     private func openSettings(tab: String) {
+        logger.info("🔧 openSettings called with tab: \(tab)")
+        logger.info("🔧 Stack trace: \(Thread.callStackSymbols.prefix(10).joined(separator: "\n"))")
         appState.settingsTab = tab
         NSApp.activate(ignoringOtherApps: true)
         openWindow(id: "settings")
