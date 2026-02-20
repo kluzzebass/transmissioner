@@ -40,11 +40,18 @@ struct SettingsView: View {
 
             Divider()
 
-            Text("Copyright © 2026 Jan Fredrik Leversund. All rights reserved.")
-                .font(.caption2)
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
+            VStack(alignment: .leading, spacing: 4) {
+                if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                    Text("Transmissioner \(appVersion)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                Text("Copyright © 2026 Jan Fredrik Leversund. All rights reserved.")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
 
             HStack {
                 Spacer()

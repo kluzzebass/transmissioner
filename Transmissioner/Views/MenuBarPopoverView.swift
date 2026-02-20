@@ -112,10 +112,13 @@ struct MenuBarPopoverView: View {
             VStack(spacing: 12) {
                 header
                 if serviceStore.services.isEmpty {
-                    emptyState
-                        .onAppear {
-                            logger.info("🔍 Showing empty state - services count: \(serviceStore.services.count)")
-                        }
+                    VStack(spacing: 12) {
+                        emptyState
+                            .onAppear {
+                                logger.info("🔍 Showing empty state - services count: \(serviceStore.services.count)")
+                            }
+                        footer
+                    }
                 } else {
                     servicesContent
                         .onAppear {
@@ -138,8 +141,35 @@ struct MenuBarPopoverView: View {
                     pendingRemoval: $pendingRemoval
                 )
                 controlsBar
+                footer
             }
         )
+    }
+    
+    private var footer: some View {
+        VStack(spacing: 4) {
+            Divider()
+            HStack(spacing: 6) {
+                if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                    Text("Transmissioner \(appVersion)")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                Text("•")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Link("GitHub", destination: URL(string: "https://github.com/kluzzebass/transmissioner")!)
+                    .font(.caption2)
+                Text("•")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Text("© 2026 Jan Fredrik Leversund")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                Spacer()
+            }
+        }
+        .padding(.top, 4)
     }
 
     private var controlsBar: AnyView {
